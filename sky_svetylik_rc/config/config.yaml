@@ -1,0 +1,18 @@
+#Accelerometr & Gyroscope
+pinOut.accelerometr: 23
+pinOut.gyroscope: 23
+
+#ESC controllers
+pinOut.esc.forwardLeft: 1
+pinOut.esc.forwardRight: 2
+pinOut.esc.backwardLeft: 3
+pinOut.esc.backwardRight: 4
+
+#Beeper
+pinOut.beeper: 123
+
+#Reciever
+pinIn.reciever.forwardLeft: 5
+pinIn.reciever.forwardRight: 6
+pinIn.reciever.backwardLeft: 7
+pinIn.reciever.backwardRight: 8
