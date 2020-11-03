@@ -2,14 +2,14 @@ import time
 
 import pigpio
 
-from pwm_reader import PWMReader
+from services.receiver_pwm_reader import ReceiverPMWReader
 
 PWM_GPIO = 3
 RUN_TIME = 60.0
 SAMPLE_TIME = 1.0
 
 pi = pigpio.pi()
-p = PWMReader(pi, PWM_GPIO)
+p = ReceiverPMWReader(pi, PWM_GPIO)
 start = time.time()
 
 while (time.time() - start) < RUN_TIME:

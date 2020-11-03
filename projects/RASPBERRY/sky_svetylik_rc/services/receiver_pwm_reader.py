@@ -1,7 +1,7 @@
 import pigpio
 
 
-class PWMReader:
+class ReceiverPMWReader:
     """
     A class to read PWM pulses and calculate their frequency
     and duty cycle.  The frequency is how often the pulse
