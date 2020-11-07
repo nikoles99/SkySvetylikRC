@@ -16,14 +16,14 @@ class Executor:
 
     def __init__(self):
         self.start = time.time()
-        self.RUN_TIME = 10.0
+        self.RUN_TIME = 60.0
         self.SAMPLE_TIME = 1.0
         self.board = pigpio.pi()
         self.drone = SkySvetylicRC(self.board)
         self.receiver_left_vertical = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.leftVercical'))
-        #self.receiver_left_horizontal = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.leftHorizontal'))
-       # self.receiver_right_vertical = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.rightVertical'))
-        #self.receiver_right_horizontal = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.rightHorizontal'))
+        self.receiver_left_horizontal = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.leftHorizontal'))
+        self.receiver_right_vertical = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.rightVertical'))
+        self.receiver_right_horizontal = ReceiverPMWReader(self.board, ConfigUtils.readValue('pinIn.reciever.rightHorizontal'))
         self.logger = logging.getLogger(APP_NAME)
         self.logger.setLevel(logging.ERROR)
         pass
@@ -33,8 +33,8 @@ class Executor:
             Beeper().init()
             while (time.time() - self.start) < self.RUN_TIME:
                 frequency = self.receiver_left_vertical.frequency()
-                pulse_width = self.receiver_left_vertical.pulse_width()
-                duty_cycle = self.receiver_left_vertical.duty_cycle()
+                pulse_width = self.receiver_left_horizontal.pulse_width()
+                duty_cycle = self.receiver_left_vertical .duty_cycle()
                 self.drone.gas(pulse_width)
                 print("frequency={:.1f} pulse_width={} duty_cycle={:.2f}"
                       .format(frequency, int(pulse_width + 0.5), duty_cycle))
