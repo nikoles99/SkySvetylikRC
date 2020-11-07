@@ -20,8 +20,7 @@ class ReceiverPMWReader:
         the old reading has no effect.  This may be used to
         smooth the data.
         """
-        self.GAS_GPIO = 3
-        self.gpio = self.GAS_GPIO
+        self.gpio = gpio
         self.pi = pi
 
         if weighting < 0.0:

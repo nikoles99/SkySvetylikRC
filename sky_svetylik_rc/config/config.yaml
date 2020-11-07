@@ -1,18 +1,18 @@
-#Accelerometr & Gyroscope
-pinOut.accelerometr: 23
-pinOut.gyroscope: 23
+#Accelerometr & Gyroscope GPIO
+pinOut.accelerometr: 2
+pinOut.gyroscope: 3
 
-#ESC controllers
-pinOut.esc.forwardLeft: 1
-pinOut.esc.forwardRight: 2
-pinOut.esc.backwardLeft: 3
-pinOut.esc.backwardRight: 4
+#ESC controllers GPIO
+pinOut.esc.forwardLeft: 4
+pinOut.esc.forwardRight: 14
+pinOut.esc.backwardLeft: 15
+pinOut.esc.backwardRight: 17
 
-#Beeper
-pinOut.beeper: 123
+#Beeper GPIO
+pinOut.beeper: 21
 
-#Reciever
-pinIn.reciever.forwardLeft: 5
-pinIn.reciever.forwardRight: 6
-pinIn.reciever.backwardLeft: 7
-pinIn.reciever.backwardRight: 8
+#Reciever GPIO
+pinIn.reciever.leftVercical: 10
+pinIn.reciever.leftHorizontal: 9
+pinIn.reciever.rightVertical: 11
+pinIn.reciever.rightHorizontal: 0
