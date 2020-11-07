@@ -14,5 +14,5 @@ pinOut.beeper: 21
 #Reciever GPIO
 pinIn.reciever.leftVercical: 10
 pinIn.reciever.leftHorizontal: 9
-pinIn.reciever.rightVertical: 11
-pinIn.reciever.rightHorizontal: 0
+pinIn.reciever.rightVertical: 5
+pinIn.reciever.rightHorizontal: 6
