@@ -13,6 +13,9 @@ class Beeper:
         pass
 
     def init(self):
+        self.__beep(0.5, 1)
+
+    def start(self):
         self.__beep(0.5, 3)
 
     def error(self):
