@@ -16,7 +16,7 @@ class Executor:
 
     def __init__(self):
         self.start = time.time()
-        self.RUN_TIME = 60.0
+        self.RUN_TIME = 10.0
         self.SAMPLE_TIME = 1.0
         self.board = pigpio.pi()
         self.drone = SkySvetylicRC(self.board)
@@ -46,3 +46,5 @@ class Executor:
             self.receiver_right_vertical.cancel()
             self.receiver_right_horizontal.cancel()
             #Beeper.turn_off()
+        finally:
+            self.drone.gas(1000)
