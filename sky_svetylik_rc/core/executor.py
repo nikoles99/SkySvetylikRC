@@ -1,5 +1,7 @@
 import logging
 import time
+import subprocess
+
 import pigpio
 
 from constants.constants import APP_NAME
@@ -11,9 +13,6 @@ from utils.config_utils import ConfigUtils
 
 
 class Executor:
-
-    # process = subprocess.Popen('sudo shutdown now', stdout=subprocess.PIPE, shell=True)
-    # output, error = process.communicate()
 
     def __init__(self):
         self.start = time.time()
@@ -49,7 +48,6 @@ class Executor:
             self.receiver_left_horizontal.cancel()
             self.receiver_right_vertical.cancel()
             self.receiver_right_horizontal.cancel()
-            # Beeper.turn_off()
         finally:
             self.drone.gas(1000)
 
@@ -67,3 +65,8 @@ class Executor:
             if pulse_width1 < 1010 and pulse_width2 < 1010 and pulse_width3 < 1010 and pulse_width4 < 1010:
                 Beeper().start()
                 break
+
+    @staticmethod
+    def turn_off():
+        Beeper().turn_off()
+        subprocess.Popen('sudo shutdown now', stdout=subprocess.PIPE, shell=True).communicate()
