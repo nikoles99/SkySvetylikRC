@@ -24,6 +24,11 @@ class Beeper:
     def turn_off(self):
         self.__beep(0.5, 6)
 
+    def search(self):
+        self.__beep(0.1, 4)
+        sleep(2)
+        self.__beep(0.1, 4)
+
     def __beep(self, delay_seconds=0.5, count=1):
         for i in range(0, count):
             GPIO.output(self.buzzer, GPIO.HIGH)

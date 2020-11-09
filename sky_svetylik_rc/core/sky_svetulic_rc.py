@@ -18,22 +18,13 @@ class SkySvetylicRC:
         self.board.set_servo_pulsewidth(self.ESC_FORWARD_RIGHT_GPIO, pulse_width)
 
     # Тангаж
-    def pitch_forward(self):
-        pass
-
-    def pitch_backward(self):
+    def pitch(self):
         pass
 
     # Крен
-    def roll_left(self):
-        pass
-
-    def roll_right(self):
+    def roll(self):
         pass
 
     # Рысканье
-    def yaw_left(self):
-        pass
-
-    def yaw_right(self):
+    def yaw(self):
         pass

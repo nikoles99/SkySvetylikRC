@@ -35,12 +35,19 @@ class Executor:
         try:
             self.safe_init()
             while (time.time() - self.start) < self.RUN_TIME:
-                frequency = self.receiver_left_vertical.frequency()
-                pulse_width = self.receiver_left_vertical.pulse_width()
-                duty_cycle = self.receiver_left_vertical.duty_cycle()
-                self.drone.gas(pulse_width)
-                print("frequency={:.1f} pulse_width={} duty_cycle={:.2f}"
-                      .format(frequency, int(pulse_width + 0.5), duty_cycle))
+                #frequency = self.receiver_left_vertical.frequency()
+                #duty_cycle = self.receiver_left_vertical.duty_cycle()
+                receiver_left_vertical_pulse_width = self.receiver_left_vertical.pulse_width()
+                receiver_left_horizontal_pulse_width = self.receiver_left_horizontal.pulse_width()
+                receiver_right_vertical_pulse_width = self.receiver_right_vertical.pulse_width()
+                receiver_right_horizontal_pulse_width = self.receiver_right_horizontal.pulse_width()
+                self.drone.gas(receiver_left_vertical_pulse_width)
+                #self.drone.pitch(receiver_left_vertical_pulse_width)
+                #self.drone.roll(receiver_left_vertical_pulse_width)
+                #self.drone.yaw(receiver_left_vertical_pulse_width)
+                print("lv={} lh={} rh={} rl{}".format(receiver_left_vertical_pulse_width, receiver_left_horizontal_pulse_width, receiver_right_vertical_pulse_width, receiver_right_horizontal_pulse_width))
+                #print("frequency={:.1f} receiver_left_vertical_pulse_width={} duty_cycle={:.2f}"
+                #      .format('frequency', int(receiver_left_vertical_pulse_width + 0.5), 'duty_cycle'))
         except Exception as exception:
             Beeper().error()
             self.logger.error(exception)
