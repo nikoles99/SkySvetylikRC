@@ -15,7 +15,5 @@ class ConfigUtils:
                 data = yaml.safe_load(stream)
                 return data[request_key]
             except Exception as exc:
-                ConfigUtils.logger = logging.getLogger(APP_NAME)
-                ConfigUtils.logger.setLevel(logging.ERROR)
-                ConfigUtils.logger.error(exc)
+                logging.getLogger(APP_NAME).error(exc)
         return ''

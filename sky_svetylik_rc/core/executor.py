@@ -1,10 +1,11 @@
-import time
 import logging
+import time
 import pigpio
 
+from constants.constants import APP_NAME
+from exceptions.no_receiver_connection_exception import NoReceiverConnectionException
 from services.receiver_pwm_reader import ReceiverPMWReader
 from services.beeper import Beeper
-from constants.constants import APP_NAME
 from core.sky_svetulic_rc import SkySvetylicRC
 from utils.config_utils import ConfigUtils
 
@@ -29,21 +30,11 @@ class Executor:
         self.receiver_right_horizontal = ReceiverPMWReader(self.board,
                                                            ConfigUtils.readValue('pinIn.reciever.rightHorizontal'))
         self.logger = logging.getLogger(APP_NAME)
-        self.logger.setLevel(logging.ERROR)
         pass
 
     def execute(self):
         try:
-            init = False
-            Beeper().init()
-            while (init is False):
-                pulse_width1 = self.receiver_left_vertical.pulse_width()
-                pulse_width2 = self.receiver_left_horizontal.pulse_width()
-                pulse_width3 = self.receiver_right_vertical.pulse_width()
-                pulse_width4 = self.receiver_right_horizontal.pulse_width()
-                if pulse_width1 < 1010 and pulse_width2 < 1010 and pulse_width3 < 1010 and pulse_width4 < 1010:
-                    init = True
-                    Beeper().start()
+            self.safe_init()
             while (time.time() - self.start) < self.RUN_TIME:
                 frequency = self.receiver_left_vertical.frequency()
                 pulse_width = self.receiver_left_vertical.pulse_width()
@@ -52,7 +43,7 @@ class Executor:
                 print("frequency={:.1f} pulse_width={} duty_cycle={:.2f}"
                       .format(frequency, int(pulse_width + 0.5), duty_cycle))
         except Exception as exception:
-            Beeper.error()
+            Beeper().error()
             self.logger.error(exception)
             self.receiver_left_vertical.cancel()
             self.receiver_left_horizontal.cancel()
@@ -61,3 +52,18 @@ class Executor:
             # Beeper.turn_off()
         finally:
             self.drone.gas(1000)
+
+    def safe_init(self):
+        # check sticks in bottom left positions
+        Beeper().init()
+        self.logger.info('START')
+        while True:
+            pulse_width1 = self.receiver_left_vertical.pulse_width()
+            pulse_width2 = self.receiver_left_horizontal.pulse_width()
+            pulse_width3 = self.receiver_right_vertical.pulse_width()
+            pulse_width4 = self.receiver_right_horizontal.pulse_width()
+            if pulse_width1 == 0 or pulse_width2 == 0 or pulse_width3 == 0 or pulse_width4 == 0:
+                raise NoReceiverConnectionException()
+            if pulse_width1 < 1010 and pulse_width2 < 1010 and pulse_width3 < 1010 and pulse_width4 < 1010:
+                Beeper().start()
+                break
