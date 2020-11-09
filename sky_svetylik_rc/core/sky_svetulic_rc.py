@@ -1,3 +1,4 @@
+from constants.constants import MIDDLE_PULSE_WIDTH
 from utils.config_utils import ConfigUtils
 
 
@@ -11,11 +12,22 @@ class SkySvetylicRC:
         self.board = board
         pass
 
-    def gas(self, pulse_width):
-        self.board.set_servo_pulsewidth(self.ESC_FORWARD_LEFT_GPIO, pulse_width)
-        self.board.set_servo_pulsewidth(self.ESC_BACKWARD_LEFT_GPIO, pulse_width)
-        self.board.set_servo_pulsewidth(self.ESC_BACKWARD_RIGHT_GPIO, pulse_width)
-        self.board.set_servo_pulsewidth(self.ESC_FORWARD_RIGHT_GPIO, pulse_width)
+    def update(self, gas_pulse_width, yaw_pulse_width, pitch_pulse_width, roll_pulse_width):
+        yaw_percents = self.compute_in_persents(yaw_pulse_width)
+        pitch_percents = self.compute_in_persents(pitch_pulse_width)
+        roll_percents = self.compute_in_persents(roll_pulse_width)
+        gas_forward_left = gas_pulse_width + gas_pulse_width * yaw_percents
+        gas_forward_right = gas_pulse_width - gas_pulse_width * yaw_percents
+        gas_backward_left = gas_pulse_width - gas_pulse_width * yaw_percents
+        gas_backward_right = gas_pulse_width + gas_pulse_width * yaw_percents
+        self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
+        pass
+
+    def gas(self, forward_left, forward_right, backward_left, backward_right):
+        self.board.set_servo_pulsewidth(self.ESC_FORWARD_LEFT_GPIO, forward_left)
+        self.board.set_servo_pulsewidth(self.ESC_FORWARD_RIGHT_GPIO, forward_right)
+        self.board.set_servo_pulsewidth(self.ESC_BACKWARD_LEFT_GPIO, backward_left)
+        self.board.set_servo_pulsewidth(self.ESC_BACKWARD_RIGHT_GPIO, backward_right)
 
     # Тангаж
     def pitch(self):
@@ -28,3 +40,9 @@ class SkySvetylicRC:
     # Рысканье
     def yaw(self):
         pass
+
+    def compute_in_persents(self, yaw_pulse_width):
+        if yaw_pulse_width == MIDDLE_PULSE_WIDTH:
+            return yaw_pulse_width - MIDDLE_PULSE_WIDTH
+        else:
+            return (yaw_pulse_width - MIDDLE_PULSE_WIDTH) * 0.2 / 100

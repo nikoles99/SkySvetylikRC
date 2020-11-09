@@ -41,22 +41,20 @@ class Executor:
                 receiver_left_horizontal_pulse_width = self.receiver_left_horizontal.pulse_width()
                 receiver_right_vertical_pulse_width = self.receiver_right_vertical.pulse_width()
                 receiver_right_horizontal_pulse_width = self.receiver_right_horizontal.pulse_width()
-                self.drone.gas(receiver_left_vertical_pulse_width)
-                #self.drone.pitch(receiver_left_vertical_pulse_width)
-                #self.drone.roll(receiver_left_vertical_pulse_width)
-                #self.drone.yaw(receiver_left_vertical_pulse_width)
+                self.drone.update(receiver_left_vertical_pulse_width, receiver_left_horizontal_pulse_width, receiver_right_vertical_pulse_width, receiver_right_horizontal_pulse_width)
                 print("lv={} lh={} rh={} rl{}".format(receiver_left_vertical_pulse_width, receiver_left_horizontal_pulse_width, receiver_right_vertical_pulse_width, receiver_right_horizontal_pulse_width))
                 #print("frequency={:.1f} receiver_left_vertical_pulse_width={} duty_cycle={:.2f}"
                 #      .format('frequency', int(receiver_left_vertical_pulse_width + 0.5), 'duty_cycle'))
         except Exception as exception:
-            Beeper().error()
+            self.drone.gas(1000, 1000, 1000, 1000)
             self.logger.error(exception)
             self.receiver_left_vertical.cancel()
             self.receiver_left_horizontal.cancel()
             self.receiver_right_vertical.cancel()
             self.receiver_right_horizontal.cancel()
         finally:
-            self.drone.gas(1000)
+            Beeper().error()
+            self.drone.gas(1000, 1000, 1000, 1000)
 
     def safe_init(self):
         # check sticks in bottom left positions
