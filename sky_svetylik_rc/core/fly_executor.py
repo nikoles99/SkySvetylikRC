@@ -1,20 +1,15 @@
 import subprocess
 
+from constants.constants import GAS_MIN, PITCH_MIN, ROLL_MIN, YAW_MAX, ERROR_MS
 from core.executor import Executor
 from exceptions.no_receiver_connection_exception import NoReceiverConnectionException
 from services.beeper import Beeper
-from utils.config_utils import ConfigUtils
 
 
 class FlyExecutor(Executor):
 
     def __init__(self):
         super().__init__()
-        self.l_v_min = ConfigUtils.read_value('calibration.leftVertical.min')
-        self.l_h_max = ConfigUtils.read_value('calibration.leftHorizontal.max')
-        self.r_v_min = ConfigUtils.read_value('calibration.rightVertical.min')
-        self.r_h_min = ConfigUtils.read_value('calibration.rightHorizontal.min')
-        self.error_ms = 10
 
     def execute(self):
         try:
@@ -26,7 +21,7 @@ class FlyExecutor(Executor):
         except Exception as exception:
             self.logger.error(exception)
         finally:
-            self.drone.gas(self.l_v_min, self.l_v_min, self.l_v_min, self.l_v_min)
+            self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
             Beeper().error()
 
     def arm(self):
@@ -40,8 +35,8 @@ class FlyExecutor(Executor):
                 break
 
     def is_disarmed(self):
-        return self.transmitter.gas_pw - self.l_v_min <= self.error_ms and self.transmitter.yaw_pw - self.l_h_max <= self.error_ms \
-               and self.transmitter.pitch_pw - self.r_v_min <= self.error_ms and self.transmitter.roll_pw - self.r_h_min <= self.error_ms
+        return self.transmitter.gas_pw - GAS_MIN <= ERROR_MS and self.transmitter.yaw_pw - YAW_MAX <= ERROR_MS \
+               and self.transmitter.pitch_pw - PITCH_MIN <= ERROR_MS and self.transmitter.roll_pw - ROLL_MIN <= ERROR_MS
 
     @staticmethod
     def turn_off():

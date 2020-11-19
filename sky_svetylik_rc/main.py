@@ -2,7 +2,6 @@ import subprocess
 import RPi.GPIO as GPIO
 import logging
 
-from constants.constants import APP_NAME
 from core.fly_executor import FlyExecutor
 from services.beeper import Beeper
 
@@ -11,7 +10,7 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
 # Logger config
-logger = logging.getLogger(APP_NAME)
+logger = logging.getLogger('MAIN')
 logging.basicConfig(filename='sky_svetylic_rc.log', filemode='w', format='[%(levelname)s]-%(asctime)s -- %(message)s',
                     level=logging.DEBUG, datefmt='%d-%b-%y %H:%M:%S')
 

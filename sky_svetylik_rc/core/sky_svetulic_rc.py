@@ -1,6 +1,6 @@
-from constants.constants import MIDDLE_PULSE_WIDTH
 from utils.config_utils import ConfigUtils
 
+MIDDLE_PULSE_WIDTH = 1500
 
 class SkySvetylicRC:
 
@@ -12,7 +12,6 @@ class SkySvetylicRC:
         self.board = board
         pass
 
-
     def update(self, transmitter):
         yaw_percents = self.compute_in_persents(transmitter.yaw_pw)
         pitch_percents = self.compute_in_persents(transmitter.pitch_pw)
@@ -21,8 +20,7 @@ class SkySvetylicRC:
         gas_forward_right = transmitter.gas_pw - (transmitter.gas_pw * yaw_percents) + (transmitter.gas_pw * pitch_percents) - (transmitter.gas_pw * roll_percents)
         gas_backward_left = transmitter.gas_pw - (transmitter.gas_pw * yaw_percents) - (transmitter.gas_pw * pitch_percents) + (transmitter.gas_pw * roll_percents)
         gas_backward_right = transmitter.gas_pw + (transmitter.gas_pw * yaw_percents) - (transmitter.gas_pw * pitch_percents) - (transmitter.gas_pw * roll_percents)
-        print("lv={} lh={} rh={} rl{}".format(gas_forward_left, gas_forward_right,
-                                            gas_backward_left, gas_backward_right))
+        print("lv={} lh={} rh={} rl{}".format(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right))
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         pass
 
