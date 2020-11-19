@@ -18,15 +18,12 @@ class SkySvetylicRC:
         yaw_percents = self.compute_in_percents(transmitter.yaw_pw, YAW_MIN, YAW_MAX)
         pitch_percents = self.compute_in_percents(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX)
         roll_percents = self.compute_in_percents(transmitter.roll_pw, ROLL_MIN, ROLL_MAX)
+        gas_percents = self.compute_in_percents(transmitter.gas_pw, GAS_MIN, GAS_MAX)
 
-        gas_forward_left = transmitter.gas_pw - (transmitter.gas_pw * yaw_percents) - (transmitter.gas_pw * pitch_percents) + (
-                transmitter.gas_pw * roll_percents)
-        gas_forward_right = transmitter.gas_pw + (transmitter.gas_pw * yaw_percents) - (transmitter.gas_pw * pitch_percents) - (
-                transmitter.gas_pw * roll_percents)
-        gas_backward_left = transmitter.gas_pw + (transmitter.gas_pw * yaw_percents) + (transmitter.gas_pw * pitch_percents) + (
-                transmitter.gas_pw * roll_percents)
-        gas_backward_right = transmitter.gas_pw - (transmitter.gas_pw * yaw_percents) + (transmitter.gas_pw * pitch_percents) - (
-                transmitter.gas_pw * roll_percents)
+        gas_forward_left = transmitter.gas_pw + gas_percents * (-yaw_percents - pitch_percents + roll_percents)
+        gas_forward_right = transmitter.gas_pw + gas_percents * (yaw_percents - pitch_percents - roll_percents)
+        gas_backward_left = transmitter.gas_pw + gas_percents * (yaw_percents + pitch_percents + roll_percents)
+        gas_backward_right = transmitter.gas_pw + gas_percents * (-yaw_percents + pitch_percents - roll_percents)
         print("{}                      {}                         {}                         {}"
               .format(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right))
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
