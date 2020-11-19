@@ -19,10 +19,10 @@ class FlyExecutor(Executor):
                     raise NoReceiverConnectionException()
                 self.drone.update(self.transmitter)
         except Exception as exception:
-            self.logger.error(exception)
-        finally:
             self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
             Beeper().error()
+            self.logger.error(exception)
+            #self.turn_off()
 
     def arm(self):
         Beeper().init()
@@ -38,7 +38,6 @@ class FlyExecutor(Executor):
         return self.transmitter.gas_pw - GAS_MIN <= ERROR_MS and self.transmitter.yaw_pw - YAW_MAX <= ERROR_MS \
                and self.transmitter.pitch_pw - PITCH_MIN <= ERROR_MS and self.transmitter.roll_pw - ROLL_MIN <= ERROR_MS
 
-    @staticmethod
-    def turn_off():
+    def turn_off(self):
         Beeper().turn_off()
         subprocess.Popen('sudo shutdown now', stdout=subprocess.PIPE, shell=True).communicate()
