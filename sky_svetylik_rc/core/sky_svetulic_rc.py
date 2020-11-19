@@ -5,10 +5,10 @@ from utils.config_utils import ConfigUtils
 class SkySvetylicRC:
 
     def __init__(self, board):
-        self.ESC_FORWARD_LEFT_GPIO = ConfigUtils.readValue('pinOut.esc.forwardLeft')
-        self.ESC_BACKWARD_LEFT_GPIO = ConfigUtils.readValue('pinOut.esc.backwardLeft')
-        self.ESC_BACKWARD_RIGHT_GPIO = ConfigUtils.readValue('pinOut.esc.backwardRight')
-        self.ESC_FORWARD_RIGHT_GPIO = ConfigUtils.readValue('pinOut.esc.forwardRight')
+        self.ESC_FORWARD_LEFT_GPIO = ConfigUtils.read_value('pinOut.esc.forwardLeft')
+        self.ESC_BACKWARD_LEFT_GPIO = ConfigUtils.read_value('pinOut.esc.backwardLeft')
+        self.ESC_BACKWARD_RIGHT_GPIO = ConfigUtils.read_value('pinOut.esc.backwardRight')
+        self.ESC_FORWARD_RIGHT_GPIO = ConfigUtils.read_value('pinOut.esc.forwardRight')
         self.board = board
         pass
 
@@ -16,10 +16,10 @@ class SkySvetylicRC:
         yaw_percents = self.compute_in_persents(yaw_pulse_width)
         pitch_percents = self.compute_in_persents(pitch_pulse_width)
         roll_percents = self.compute_in_persents(roll_pulse_width)
-        gas_forward_left = gas_pulse_width + gas_pulse_width * yaw_percents
-        gas_forward_right = gas_pulse_width - gas_pulse_width * yaw_percents
-        gas_backward_left = gas_pulse_width - gas_pulse_width * yaw_percents
-        gas_backward_right = gas_pulse_width + gas_pulse_width * yaw_percents
+        gas_forward_left = gas_pulse_width + (gas_pulse_width * yaw_percents) + (gas_pulse_width * pitch_percents) + (gas_pulse_width * roll_percents)
+        gas_forward_right = gas_pulse_width - (gas_pulse_width * yaw_percents) + (gas_pulse_width * pitch_percents) - (gas_pulse_width * roll_percents)
+        gas_backward_left = gas_pulse_width - (gas_pulse_width * yaw_percents) - (gas_pulse_width * pitch_percents) + (gas_pulse_width * roll_percents)
+        gas_backward_right = gas_pulse_width + (gas_pulse_width * yaw_percents) - (gas_pulse_width * pitch_percents) - (gas_pulse_width * roll_percents)
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         pass
 

@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 import logging
 
 from constants.constants import APP_NAME
-from core.executor import Executor
+from core.fly_executor import FlyExecutor
 from services.beeper import Beeper
 
 # GPIO config
@@ -19,8 +19,9 @@ logging.basicConfig(filename='sky_svetylic_rc.log', filemode='w', format='[%(lev
 process = subprocess.Popen('sudo killall pigpiod;sudo pigpiod', stdout=subprocess.PIPE, shell=True)
 output, error = process.communicate()
 
+
 if error is None:
-    Executor().execute()
+    FlyExecutor().execute()
 else:
     logger.error(error)
     Beeper().error()

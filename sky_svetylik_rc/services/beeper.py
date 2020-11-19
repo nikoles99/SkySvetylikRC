@@ -8,12 +8,15 @@ from utils.config_utils import ConfigUtils
 class Beeper:
 
     def __init__(self):
-        self.buzzer = ConfigUtils.readValue('pinOut.beeper')
+        self.buzzer = ConfigUtils.read_value('pinOut.beeper')
         GPIO.setup(self.buzzer, GPIO.OUT)
         pass
 
     def init(self):
         self.__beep(0.5, 1)
+
+    def finish(self):
+        self.__beep(0.5, 2)
 
     def start(self):
         self.__beep(0.5, 3)
