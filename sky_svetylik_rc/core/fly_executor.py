@@ -1,61 +1,47 @@
-import time
 import subprocess
 
 from core.executor import Executor
 from exceptions.no_receiver_connection_exception import NoReceiverConnectionException
-
 from services.beeper import Beeper
+from utils.config_utils import ConfigUtils
 
 
 class FlyExecutor(Executor):
 
     def __init__(self):
         super().__init__()
-        self.start = time.time()
-        self.RUN_TIME = 60.0
-        self.SAMPLE_TIME = 1.0
+        self.l_v_min = ConfigUtils.read_value('calibration.leftVertical.min')
+        self.l_h_max = ConfigUtils.read_value('calibration.leftHorizontal.max')
+        self.r_v_min = ConfigUtils.read_value('calibration.rightVertical.min')
+        self.r_h_min = ConfigUtils.read_value('calibration.rightHorizontal.min')
+        self.error_ms = 10
 
     def execute(self):
         try:
-            self.safe_init()
-            while (time.time() - self.start) < self.RUN_TIME:
-                # frequency = self.receiver_left_vertical.frequency()
-                # duty_cycle = self.receiver_left_vertical.duty_cycle()
-                receiver_left_vertical_pulse_width = self.receiver_left_vertical.pulse_width()
-                receiver_left_horizontal_pulse_width = self.receiver_left_horizontal.pulse_width()
-                receiver_right_vertical_pulse_width = self.receiver_right_vertical.pulse_width()
-                receiver_right_horizontal_pulse_width = self.receiver_right_horizontal.pulse_width()
-                self.drone.update(receiver_left_vertical_pulse_width, receiver_left_horizontal_pulse_width, receiver_right_vertical_pulse_width,
-                                  receiver_right_horizontal_pulse_width)
-                print("lv={} lh={} rh={} rl{}".format(receiver_left_vertical_pulse_width, receiver_left_horizontal_pulse_width,
-                                                      receiver_right_vertical_pulse_width, receiver_right_horizontal_pulse_width))
-                # print("frequency={:.1f} receiver_left_vertical_pulse_width={} duty_cycle={:.2f}"
-                #      .format('frequency', int(receiver_left_vertical_pulse_width + 0.5), 'duty_cycle'))
+            self.arm()
+            while True:
+                if self.is_disarmed():
+                    raise NoReceiverConnectionException()
+                self.drone.update(self.transmitter)
         except Exception as exception:
-            self.drone.gas(1000, 1000, 1000, 1000)
             self.logger.error(exception)
-            self.receiver_left_vertical.cancel()
-            self.receiver_left_horizontal.cancel()
-            self.receiver_right_vertical.cancel()
-            self.receiver_right_horizontal.cancel()
         finally:
+            self.drone.gas(self.l_v_min, self.l_v_min, self.l_v_min, self.l_v_min)
             Beeper().error()
-            self.drone.gas(1000, 1000, 1000, 1000)
 
-    def safe_init(self):
-        # check sticks in bottom left positions
+    def arm(self):
         Beeper().init()
         self.logger.info('START')
         while True:
-            pulse_width1 = self.receiver_left_vertical.pulse_width()
-            pulse_width2 = self.receiver_left_horizontal.pulse_width()
-            pulse_width3 = self.receiver_right_vertical.pulse_width()
-            pulse_width4 = self.receiver_right_horizontal.pulse_width()
-            if pulse_width1 == 0 or pulse_width2 == 0 or pulse_width3 == 0 or pulse_width4 == 0:
+            if self.transmitter.gas_pw == 0 or self.transmitter.yaw_pw == 0 or self.transmitter.pitch_pw == 0 or self.transmitter.roll_pw == 0:
                 raise NoReceiverConnectionException()
-            if pulse_width1 < 1010 and pulse_width2 < 1010 and pulse_width3 < 1010 and pulse_width4 < 1010:
+            if self.is_disarmed():
                 Beeper().start()
                 break
+
+    def is_disarmed(self):
+        return self.transmitter.gas_pw - self.l_v_min <= self.error_ms and self.transmitter.yaw_pw - self.l_h_max <= self.error_ms \
+               and self.transmitter.pitch_pw - self.r_v_min <= self.error_ms and self.transmitter.roll_pw - self.r_h_min <= self.error_ms
 
     @staticmethod
     def turn_off():

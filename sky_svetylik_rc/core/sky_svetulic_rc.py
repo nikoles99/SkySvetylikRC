@@ -12,14 +12,17 @@ class SkySvetylicRC:
         self.board = board
         pass
 
-    def update(self, gas_pulse_width, yaw_pulse_width, pitch_pulse_width, roll_pulse_width):
-        yaw_percents = self.compute_in_persents(yaw_pulse_width)
-        pitch_percents = self.compute_in_persents(pitch_pulse_width)
-        roll_percents = self.compute_in_persents(roll_pulse_width)
-        gas_forward_left = gas_pulse_width + (gas_pulse_width * yaw_percents) + (gas_pulse_width * pitch_percents) + (gas_pulse_width * roll_percents)
-        gas_forward_right = gas_pulse_width - (gas_pulse_width * yaw_percents) + (gas_pulse_width * pitch_percents) - (gas_pulse_width * roll_percents)
-        gas_backward_left = gas_pulse_width - (gas_pulse_width * yaw_percents) - (gas_pulse_width * pitch_percents) + (gas_pulse_width * roll_percents)
-        gas_backward_right = gas_pulse_width + (gas_pulse_width * yaw_percents) - (gas_pulse_width * pitch_percents) - (gas_pulse_width * roll_percents)
+
+    def update(self, transmitter):
+        yaw_percents = self.compute_in_persents(transmitter.yaw_pw)
+        pitch_percents = self.compute_in_persents(transmitter.pitch_pw)
+        roll_percents = self.compute_in_persents(transmitter.roll_pw)
+        gas_forward_left = transmitter.gas_pw + (transmitter.gas_pw * yaw_percents) + (transmitter.gas_pw * pitch_percents) + (transmitter.gas_pw * roll_percents)
+        gas_forward_right = transmitter.gas_pw - (transmitter.gas_pw * yaw_percents) + (transmitter.gas_pw * pitch_percents) - (transmitter.gas_pw * roll_percents)
+        gas_backward_left = transmitter.gas_pw - (transmitter.gas_pw * yaw_percents) - (transmitter.gas_pw * pitch_percents) + (transmitter.gas_pw * roll_percents)
+        gas_backward_right = transmitter.gas_pw + (transmitter.gas_pw * yaw_percents) - (transmitter.gas_pw * pitch_percents) - (transmitter.gas_pw * roll_percents)
+        print("lv={} lh={} rh={} rl{}".format(gas_forward_left, gas_forward_right,
+                                            gas_backward_left, gas_backward_right))
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         pass
 
