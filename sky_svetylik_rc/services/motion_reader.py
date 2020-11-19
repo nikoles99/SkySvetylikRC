@@ -1,6 +1,8 @@
 import smbus, time
 
 
+#i2cdetect -y 1
+
 def MPU6050_start():
     # alter sample rate (stability)
     samp_rate_div = 0  # sample rate = 8 kHz/(1+samp_rate_div)
