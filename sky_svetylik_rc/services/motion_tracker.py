@@ -1,25 +1,29 @@
-#!/usr/bin/python
-import smbus
 import math
+import time
 
-# Register
+import smbus
+
+# Power management registers
 power_mgmt_1 = 0x6b
 power_mgmt_2 = 0x6c
 
-
-def read_byte(reg):
-    return bus.read_byte_data(address, reg)
-
-
-def read_word(reg):
-    h = bus.read_byte_data(address, reg)
-    l = bus.read_byte_data(address, reg + 1)
-    value = (h << 8) + l
-    return value
+bus = smbus.SMBus(1)  # or bus = smbus.SMBus(1) for Revision 2 boards
+address = 0x68
 
 
-def read_word_2c(reg):
-    val = read_word(reg)
+def read_byte(adr):
+    return bus.read_byte_data(address, adr)
+
+
+def read_word(adr):
+    high = bus.read_byte_data(address, adr)
+    low = bus.read_byte_data(address, adr + 1)
+    val = (high << 8) + low
+    return val
+
+
+def read_word_2c(adr):
+    val = read_word(adr)
     if (val >= 0x8000):
         return -((65535 - val) + 1)
     else:
@@ -40,107 +44,38 @@ def get_x_rotation(x, y, z):
     return math.degrees(radians)
 
 
-bus = smbus.SMBus(1)  # bus = smbus.SMBus(0) fuer Revision 1
-address = 0x68  # via i2cdetect
+previous_time = time.time()
+gyroX = 0
+gyroY = 0
+yaw = 0
 
-# Aktivieren, um das Modul ansprechen zu koennen
-bus.write_byte_data(address, power_mgmt_1, 0)
+while True:
+    try:
+        current_time = time.time()
+        elapsed_time = current_time - previous_time
+        previous_time = current_time
 
-print "Gyroskop"
-print "--------"
+        gyroskop_xout = read_word_2c(0x43) / 131
+        gyroskop_yout = read_word_2c(0x45) / 131
+        gyroskop_zout = read_word_2c(0x47) / 131
 
-gyroskop_xout = read_word_2c(0x43)
-gyroskop_yout = read_word_2c(0x45)
-gyroskop_zout = read_word_2c(0x47)
-
-print "gyroskop_xout: ", ("%5d" % gyroskop_xout), " skaliert: ", (gyroskop_xout / 131)
-print "gyroskop_yout: ", ("%5d" % gyroskop_yout), " skaliert: ", (gyroskop_yout / 131)
-print "gyroskop_zout: ", ("%5d" % gyroskop_zout), " skaliert: ", (gyroskop_zout / 131)
-
-print
-print "Beschleunigungssensor"
-print "---------------------"
-
-beschleunigung_xout = read_word_2c(0x3b)
-beschleunigung_yout = read_word_2c(0x3d)
-beschleunigung_zout = read_word_2c(0x3f)
-
-beschleunigung_xout_skaliert = beschleunigung_xout / 16384.0
-beschleunigung_yout_skaliert = beschleunigung_yout / 16384.0
-beschleunigung_zout_skaliert = beschleunigung_zout / 16384.0
-
-print "beschleunigung_xout: ", ("%6d" % beschleunigung_xout), " skaliert: ", beschleunigung_xout_skaliert
-print "beschleunigung_yout: ", ("%6d" % beschleunigung_yout), " skaliert: ", beschleunigung_yout_skaliert
-print "beschleunigung_zout: ", ("%6d" % beschleunigung_zout), " skaliert: ", beschleunigung_zout_skaliert
-
-print "X Rotation: ", get_x_rotation(beschleunigung_xout_skaliert, beschleunigung_yout_skaliert,
-                                     beschleunigung_zout_skaliert)
-print "Y Rotation: ", get_y_rotation(beschleunigung_xout_skaliert, beschleunigung_yout_skaliert,
-                                     beschleunigung_zout_skaliert)
+        gyroX = gyroskop_xout + gyroskop_xout * elapsed_time
+        gyroY = gyroskop_yout + gyroskop_yout * elapsed_time
+        yaw = gyroskop_zout + gyroskop_zout * elapsed_time
 
 
-# ##!/usr/bin/python
-# import web
-# import smbus
-# import math
-#
-# urls = (
-#     '/', 'index'
-# )
-#
-# # Power management registers
-# power_mgmt_1 = 0x6b
-# power_mgmt_2 = 0x6c
-#
-# bus = smbus.SMBus(0) # or bus = smbus.SMBus(1) for Revision 2 boards
-# address = 0x68       # This is the address value read via the i2cdetect command
-#
-#
-# def read_byte(adr):
-#     return bus.read_byte_data(address, adr)
-#
-# def read_word(adr):
-#     high = bus.read_byte_data(address, adr)
-#     low = bus.read_byte_data(address, adr+1)
-#     val = (high << 8) + low
-#     return val
-#
-# def read_word_2c(adr):
-#     val = read_word(adr)
-#     if (val >= 0x8000):
-#         return -((65535 - val) + 1)
-#     else:
-#         return val
-#
-# def dist(a,b):
-#     return math.sqrt((a*a)+(b*b))
-#
-# def get_y_rotation(x,y,z):
-#     radians = math.atan2(x, dist(y,z))
-#     return -math.degrees(radians)
-#
-# def get_x_rotation(x,y,z):
-#     radians = math.atan2(y, dist(x,z))
-#     return math.degrees(radians)
-#
-#
-# class index:
-#     def GET(self):
-#         accel_xout = read_word_2c(0x3b)
-#         accel_yout = read_word_2c(0x3d)
-#         accel_zout = read_word_2c(0x3f)
-#
-#         accel_xout_scaled = accel_xout / 16384.0
-#         accel_yout_scaled = accel_yout / 16384.0
-#         accel_zout_scaled = accel_zout / 16384.0
-#
-#         return str(get_x_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled))+" "+str(get_y_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled))
-#
-#
-# if __name__ == "__main__":
-#
-#     # Now wake the 6050 up as it starts in sleep mode
-#     bus.write_byte_data(address, power_mgmt_1, 0)
-#
-#     app = web.application(urls, globals())
-#     app.run()
+        accel_xout = read_word_2c(0x3b)
+        accel_yout = read_word_2c(0x3d)
+        accel_zout = read_word_2c(0x3f)
+
+        accel_xout_scaled = accel_xout / 16384.0
+        accel_yout_scaled = accel_yout / 16384.0
+        accel_zout_scaled = accel_zout / 16384.0
+
+
+        roll = 0.96 * gyroskop_xout + 0.04 * get_x_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled)
+        pitch = 0.96 * gyroskop_yout + 0.04 * get_y_rotation(accel_xout_scaled, accel_yout_scaled, accel_zout_scaled)
+
+        print("yaw = {}, pitch={}, roll={}".format(yaw, pitch, roll))
+    except:
+        continue
