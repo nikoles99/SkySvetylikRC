@@ -65,8 +65,8 @@ class MPU6050:
     accel_x_error = 0
     accel_y_error = 0
 
-    angle_pitch = 0
     angle_roll = 0
+    angle_pitch = 0
     angle_yaw = 0
     first_reading = True
 
@@ -303,28 +303,29 @@ class MPU6050:
         gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.0000611
         gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.0000611
 
-        self.angle_pitch = self.angle_pitch + gyro_x_out
-        self.angle_roll = self.angle_roll + gyro_y_out
+        self.angle_roll = self.angle_roll + gyro_x_out
+        self.angle_pitch = self.angle_pitch + gyro_y_out
         self.angle_yaw = self.angle_yaw + gyro_z_out
 
-        self.angle_pitch += self.angle_roll * math.sin(gyro_z_out * 0.000001066)
-        self.angle_roll -= self.angle_pitch * math.sin(gyro_z_out * 0.000001066)
+        sin = math.sin(gyro_z_out * 0.000001066)
+        self.angle_roll += self.angle_pitch * sin
+        self.angle_pitch -= self.angle_roll * sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
         accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
         accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
 
         if not self.first_reading:
-            self.angle_pitch = self.angle_pitch * 0.96 + accel_x * 0.04
-            self.angle_roll = self.angle_roll * 0.96 + accel_y * 0.04
+            self.angle_roll = self.angle_roll * 0.96 + accel_x * 0.04
+            self.angle_pitch = self.angle_pitch * 0.96 + accel_y * 0.04
         else:
-            self.angle_pitch = accel_x
-            self.angle_roll = accel_y
+            self.angle_roll = accel_x
+            self.angle_pitch = accel_y
             self.first_reading = False
-        return self.angle_yaw, self.angle_pitch, self.angle_roll
+        return self.angle_yaw, self.angle_roll, self.angle_pitch
 
 
 mpu_ = MPU6050()
 while True:
-    yaw, pitch, roll = mpu_.get_yaw_pitch_roll_angles()
-    print("yaw = {}, pitch={}, roll={}".format(yaw, pitch, roll))
+    yaw, roll, pitch = mpu_.get_yaw_pitch_roll_angles()
+    print("yaw = {}, roll={}, pitch={}".format(yaw, roll, pitch))
