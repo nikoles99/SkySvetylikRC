@@ -2,8 +2,10 @@ import math
 
 import smbus
 
+from domain.gyro_accel_model import GyroAccelModel
 
-class MPU6050:
+
+class TiltsMeter:
     # Global Variables
     GRAVITIY_MS2 = 9.80665
     address = None
@@ -293,11 +295,11 @@ class MPU6050:
         return math.sqrt((a * a) + (b * b))
 
     def get_yaw_pitch_roll_angles(self):
-        #gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * 0.00012195
-        #gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.00012195
-        #gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.00012195
-        #self.angle_pitch += self.angle_roll * math.sin(gyro_z_out * 0.00000213)
-        #self.angle_roll -= self.angle_pitch * math.sin(gyro_z_out * 0.00000213)
+        # gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * 0.00012195
+        # gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.00012195
+        # gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.00012195
+        # self.angle_pitch += self.angle_roll * math.sin(gyro_z_out * 0.00000213)
+        # self.angle_roll -= self.angle_pitch * math.sin(gyro_z_out * 0.00000213)
 
         gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * 0.0000611
         gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.0000611
@@ -322,10 +324,4 @@ class MPU6050:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        return self.angle_yaw, self.angle_roll, self.angle_pitch
-
-
-mpu_ = MPU6050()
-while True:
-    yaw, roll, pitch = mpu_.get_yaw_pitch_roll_angles()
-    print("yaw = {}, roll={}, pitch={}".format(yaw, roll, pitch))
+        return GyroAccelModel(self.angle_roll, self.angle_pitch, self.angle_yaw)

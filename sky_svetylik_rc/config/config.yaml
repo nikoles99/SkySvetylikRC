@@ -20,9 +20,20 @@ pinIn.reciever.rightHorizontal: 6
 #Sticks calibration ms
 calibration.leftHorizontal.max: 2001.0
 calibration.leftHorizontal.min: 999.0
-calibration.leftVertical.max: 2001.0
+calibration.leftVertical.max: 2000.0
 calibration.leftVertical.min: 999.0
 calibration.rightHorizontal.max: 2001.0
 calibration.rightHorizontal.min: 999.0
 calibration.rightVertical.max: 2001.0
-calibration.rightVertical.min: 995.0
+calibration.rightVertical.min: 999.0
+
+#PID params
+roll.P: 1
+roll.I: 0.04
+roll.D: 1
+pitch.P: 1
+pitch.I: 1
+pitch.D: 1
+yaw.P: 1
+yaw.I: 1
+yaw.D: 1

@@ -22,10 +22,10 @@ class TransmitterCalibrationExecutor(Executor):
             Beeper().init()
             self.logger.info('START CALIBRATION')
             while (time.time() - self.start) < self.RUN_TIME:
-                self.__update_pulse_width(self.r_h_stick, self.transmitter.roll_pulse_width)
-                self.__update_pulse_width(self.r_v_stick, self.transmitter.pitch_pulse_width)
-                self.__update_pulse_width(self.l_h_stick, self.transmitter.yaw_pulse_width)
-                self.__update_pulse_width(self.l_v_stick, self.transmitter.gas_pulse_width)
+                self.__update_pulse_width(self.r_h_stick, self.transmitter.roll_pw)
+                self.__update_pulse_width(self.r_v_stick, self.transmitter.pitch_pw)
+                self.__update_pulse_width(self.l_h_stick, self.transmitter.yaw_pw)
+                self.__update_pulse_width(self.l_v_stick, self.transmitter.gas_pw)
         except Exception as exception:
             self.logger.error(exception)
         finally:
