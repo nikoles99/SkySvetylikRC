@@ -5,8 +5,6 @@ from services.PID_regulator import PIDRegulator
 from services.tilts_meter import TiltsMeter
 from utils.config_utils import ConfigUtils
 
-MIDDLE_PULSE_WIDTH = 1500
-
 
 class SkySvetylicRC:
 
@@ -41,15 +39,15 @@ class SkySvetylicRC:
         # gas_backward_left = transmitter.gas_pw + transmitter.gas_pw * (yaw_percents + pitch_percents + roll_percents)
         # gas_backward_right = transmitter.gas_pw + transmitter.gas_pw * (-yaw_percents + pitch_percents - roll_percents)
 
-        gas_forward_left = transmitter.gas_pw - regulated_roll
-        gas_forward_right = transmitter.gas_pw + regulated_roll
-        gas_backward_left = transmitter.gas_pw - regulated_roll
-        gas_backward_right = transmitter.gas_pw + regulated_roll
+        gas_forward_left = transmitter.gas_pw - regulated_roll + regulated_pitch
+        gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch
+        gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch
+        gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch
         # print("{}                      {}                         {}                         {}"
         #       .format(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right))
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         self.cycle_time = time.process_time() - time_time
-        print(self.cycle_time)
+        print("{}, {} ", regulated_roll, regulated_pitch)
         pass
 
     def gas(self, forward_left, forward_right, backward_left, backward_right):
