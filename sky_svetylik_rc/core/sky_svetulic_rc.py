@@ -1,7 +1,7 @@
 import time
 
 from constants.constants import GAS_MAX, GAS_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN
-from services.PID_regulator import PIDRegulator
+from pid.PID_regulator import PIDRegulator
 from services.tilts_meter import TiltsMeter
 from utils.config_utils import ConfigUtils
 
@@ -28,26 +28,18 @@ class SkySvetylicRC:
         regulated_pitch = self.roll_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX), self.cycle_time)
         regulated_yaw = self.roll_regulator.regulate(angles.yaw, self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX), self.cycle_time)
         # print("{}, {}, {},", angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX), regulated_roll)
+        regulated_roll *= 15
+        regulated_pitch *= 15
 
-        # yaw_percents = self.compute_in_percents(transmitter.yaw_pw, YAW_MIN, YAW_MAX)
-        # pitch_percents = self.compute_in_percents(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX)
-        # roll_percents = self.compute_in_percents(transmitter.roll_pw, ROLL_MIN, ROLL_MAX)
-        # gas_percents = self.compute_in_percents(transmitter.gas_pw, GAS_MIN, GAS_MAX)
-        #
-        # gas_forward_left = transmitter.gas_pw + transmitter.gas_pw * (-yaw_percents - pitch_percents + roll_percents)
-        # gas_forward_right = transmitter.gas_pw + transmitter.gas_pw * (yaw_percents - pitch_percents - roll_percents)
-        # gas_backward_left = transmitter.gas_pw + transmitter.gas_pw * (yaw_percents + pitch_percents + roll_percents)
-        # gas_backward_right = transmitter.gas_pw + transmitter.gas_pw * (-yaw_percents + pitch_percents - roll_percents)
-
-        gas_forward_left = transmitter.gas_pw - regulated_roll + regulated_pitch
-        gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch
-        gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch
-        gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch
-        # print("{}                      {}                         {}                         {}"
-        #       .format(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right))
+        gas_forward_left = transmitter.gas_pw - regulated_roll + regulated_pitch  # +regulated_yaw
+        gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch  # -regulated_yaw
+        gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch  # -regulated_yaw
+        gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch  # +regulated_yaw
+        print("{}                      {}                         {}                         {}"
+              .format(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right))
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         self.cycle_time = time.process_time() - time_time
-        print("{}, {} ", regulated_roll, regulated_pitch)
+        # print("{}, {} ", regulated_roll, regulated_pitch)
         pass
 
     def gas(self, forward_left, forward_right, backward_left, backward_right):
@@ -75,12 +67,12 @@ class SkySvetylicRC:
     @staticmethod
     def pulse_to_degree(pulse_value, min_pw, max_pw):
         average_pw = (max_pw + min_pw) / 2
-        return (pulse_value - average_pw) / 11.1
+        return (pulse_value - average_pw) / 3
 
     @staticmethod
     def degree_to_pulse(degree_value, min_pw, max_pw):
         average_pw = (max_pw + min_pw) / 2
-        return degree_value * 11.1 + average_pw
+        return degree_value * 3 + average_pw
 
     @staticmethod
     def compute_in_percents(current_pw, min_pw, max_pw):

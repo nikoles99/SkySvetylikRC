@@ -16,7 +16,8 @@ class FlyExecutor(Executor):
             self.arm()
             while True:
                 if self.is_disarmed():
-                    raise NoReceiverConnectionException()
+                    self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
+                    self.arm()
                 self.drone.update(self.transmitter)
         except Exception as exception:
             self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
@@ -35,8 +36,7 @@ class FlyExecutor(Executor):
                 break
 
     def is_disarmed(self):
-        return self.transmitter.gas_pw - GAS_MIN <= ERROR_MS and self.transmitter.yaw_pw - YAW_MAX <= ERROR_MS \
-               and self.transmitter.pitch_pw - PITCH_MIN <= ERROR_MS and self.transmitter.roll_pw - ROLL_MIN <= ERROR_MS
+        return self.transmitter.gas_pw - GAS_MIN <= ERROR_MS and YAW_MAX - self.transmitter.yaw_pw <= ERROR_MS
 
     def turn_off(self):
         Beeper().turn_off()
