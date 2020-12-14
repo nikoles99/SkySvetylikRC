@@ -1,6 +1,6 @@
 import time
 
-from constants.constants import GAS_MAX, GAS_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN
+from constants.constants import GAS_MAX, GAS_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN, ERROR_MS
 from pid.pid_regulator import PIDRegulator
 from services.tilts_meter import TiltsMeter
 from utils.config_utils import ConfigUtils
@@ -29,6 +29,7 @@ class SkySvetylicRC:
         self.yaw_I = ConfigUtils.read_value('yaw.I')
         self.yaw_D = ConfigUtils.read_value('yaw.D')
         self.yaw_regulator = PIDRegulator(self.yaw_P, self.yaw_I, self.yaw_D)
+        self.move_min_gas = GAS_MIN + ERROR_MS + 5
         pass
 
     def update(self, transmitter):
@@ -41,11 +42,14 @@ class SkySvetylicRC:
         regulated_pitch = self.degree_to_pulse(regulated_pitch)
         regulated_yaw = self.degree_to_pulse(regulated_yaw)
 
-        gas_forward_left = transmitter.gas_pw + regulated_roll - regulated_pitch - regulated_yaw
-        gas_forward_right = transmitter.gas_pw - regulated_roll - regulated_pitch + regulated_yaw
-        gas_backward_left = transmitter.gas_pw + regulated_roll + regulated_pitch + regulated_yaw
-        gas_backward_right = transmitter.gas_pw - regulated_roll + regulated_pitch - regulated_yaw
-        self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
+        gas_forward_left = transmitter.gas_pw + regulated_roll - regulated_pitch  # - regulated_yaw
+        gas_forward_right = transmitter.gas_pw - regulated_roll - regulated_pitch  # + regulated_yaw
+        gas_backward_left = transmitter.gas_pw + regulated_roll + regulated_pitch  # + regulated_yaw
+        gas_backward_right = transmitter.gas_pw - regulated_roll + regulated_pitch  # - regulated_yaw
+        if transmitter.gas_pw > self.move_min_gas:
+            self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
+        else:
+            self.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
         self.cycle_time = time.process_time() - time_time
         # print("{}, {}, {}, {}, {}", self.cycle_time, angles.roll, angles.pitch, regulated_roll, angles.yaw  )
         pass
