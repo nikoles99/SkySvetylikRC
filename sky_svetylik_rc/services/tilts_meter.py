@@ -303,7 +303,7 @@ class TiltsMeter:
 
         gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * 0.0000611
         gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.0000611
-        gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.0000611
+        gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.00048
 
         self.angle_roll = self.angle_roll + gyro_x_out
         self.angle_pitch = self.angle_pitch + gyro_y_out
@@ -324,4 +324,5 @@ class TiltsMeter:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        return GyroAccelModel(self.angle_roll, self.angle_pitch, self.angle_yaw)
+        print("{}, {}, {}", self.angle_roll, self.angle_pitch, self.angle_yaw)
+        return GyroAccelModel(self.angle_roll, self.angle_pitch, -self.angle_yaw)
