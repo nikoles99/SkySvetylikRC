@@ -15,5 +15,6 @@ class PIDRegulator:
         self.error = receiver - gyro
         self.P_output = self.P_gain * self.error
         self.I_output = self.I_gain * (self.I_output + self.error * time)
-        self.D_output = self.D_output * (self.error - error_previous) / time
+        self.D_output = self.D_gain * (self.error - error_previous) / time
+        print(self.P_output,      self.I_output,       self.D_output)
         return self.P_output + self.I_output + self.D_output

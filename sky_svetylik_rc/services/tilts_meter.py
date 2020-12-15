@@ -325,6 +325,6 @@ class TiltsMeter:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        print("{}, {}, {}", self.angle_roll, self.angle_pitch, -self.angle_yaw*10)
+        #print("{}, {}, {}", self.angle_roll, self.angle_pitch, -self.angle_yaw*10)
         self.previous_time = time.process_time() - current_time
         return GyroAccelModel(self.angle_roll, self.angle_pitch, -self.angle_yaw)
