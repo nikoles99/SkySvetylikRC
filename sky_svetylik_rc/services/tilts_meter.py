@@ -1,4 +1,5 @@
 import math
+import time
 
 import smbus
 
@@ -71,14 +72,17 @@ class TiltsMeter:
     angle_pitch = 0
     angle_yaw = 0
     first_reading = True
+    previous_time = 1
 
     def __init__(self, address=0x68):
         self.address = address
 
         # Wake up the MPU-6050 since it starts in sleep mode
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)
-        self.set_accel_range(self.ACCEL_RANGE_8G)
-        self.set_gyro_range(self.GYRO_RANGE_500DEG)
+        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_2G
+        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_250DEG
+        self.set_accel_range(self.ACCEL_RANGE_2G)
+        self.set_gyro_range(self.GYRO_RANGE_250DEG)
         self.calibrate()
 
     # I2C communication methods
@@ -268,9 +272,9 @@ class TiltsMeter:
         CALIBRATION_RANGE = 200
 
         for i in range(CALIBRATION_RANGE):
-            accel_xout = self.read_i2c_word(self.ACCEL_XOUT0) / self.ACCEL_SCALE_MODIFIER_2G
-            accel_yout = self.read_i2c_word(self.ACCEL_YOUT0) / self.ACCEL_SCALE_MODIFIER_2G
-            accel_zout = self.read_i2c_word(self.ACCEL_ZOUT0) / self.ACCEL_SCALE_MODIFIER_2G
+            accel_xout = self.read_i2c_word(self.ACCEL_XOUT0) / self.selected_accel_param
+            accel_yout = self.read_i2c_word(self.ACCEL_YOUT0) / self.selected_accel_param
+            accel_zout = self.read_i2c_word(self.ACCEL_ZOUT0) / self.selected_accel_param
             accel_x_sum = accel_x_sum + self.get_x_rotation(accel_xout, accel_yout, accel_zout)
             accel_y_sum = accel_y_sum + self.get_y_rotation(accel_xout, accel_yout, accel_zout)
             gyro_x_sum = gyro_x_sum + self.read_i2c_word(self.GYRO_XOUT0)
@@ -295,23 +299,20 @@ class TiltsMeter:
         return math.sqrt((a * a) + (b * b))
 
     def get_yaw_pitch_roll_angles(self):
-        # gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * 0.00012195
-        # gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.00012195
-        # gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.00012195
-        # self.angle_pitch += self.angle_roll * math.sin(gyro_z_out * 0.00000213)
-        # self.angle_roll -= self.angle_pitch * math.sin(gyro_z_out * 0.00000213)
-
-        gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * 0.0000611
-        gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * 0.0000611
-        gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * 0.00048
+        current_time = time.process_time()
+        gyro_gain = 1 / self.selected_gyro_param * self.previous_time
+        gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * gyro_gain
+        gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * gyro_gain
+        gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * gyro_gain
 
         self.angle_roll = self.angle_roll + gyro_x_out
         self.angle_pitch = self.angle_pitch + gyro_y_out
         self.angle_yaw = self.angle_yaw + gyro_z_out
 
-        sin = math.sin(gyro_z_out * 0.000001066)
-        self.angle_roll += self.angle_pitch * sin
-        self.angle_pitch -= self.angle_roll * sin
+        gyro_gain_radians = gyro_gain * 3.142 / 180
+        sin = math.sin(gyro_z_out * gyro_gain_radians)
+        self.angle_roll -= self.angle_pitch * sin
+        self.angle_pitch += self.angle_roll * sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
         accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
@@ -324,5 +325,6 @@ class TiltsMeter:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        #print("{}, {}, {}", self.angle_roll, self.angle_pitch, self.angle_yaw)
+        print("{}, {}, {}", self.angle_roll, self.angle_pitch, -self.angle_yaw*10)
+        self.previous_time = time.process_time() - current_time
         return GyroAccelModel(self.angle_roll, self.angle_pitch, -self.angle_yaw)
