@@ -12,9 +12,19 @@ class PIDRegulator:
 
     def regulate(self, gyro, receiver, time):
         error_previous = self.error
-        self.error = receiver - gyro
+        self.error = gyro - receiver
         self.P_output = self.P_gain * self.error
-        self.I_output += self.error * time
-        self.D_output = (self.error - error_previous) / time
-        #print(self.P_output,      self.I_output,       self.D_output)
-        return self.P_output + self.I_gain * self.I_output + self.D_gain * self.D_output
+        self.I_output += self.I_gain * self.error
+        if self.I_output > 400:
+            self.I_output = 400
+        if self.I_output < -400:
+            self.I_output = -400
+        self.D_output = (self.error - error_previous)
+        #print(receiver,      gyro)
+        output = self.P_output + self.I_output + self.D_gain * self.D_output
+        if output > 400:
+            output = 400
+        if output < -400:
+            output = -400
+        print(receiver,          gyro)
+        return output

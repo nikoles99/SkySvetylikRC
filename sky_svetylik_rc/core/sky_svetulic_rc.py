@@ -35,17 +35,18 @@ class SkySvetylicRC:
     def update(self, transmitter):
         time_time = time.process_time()
         angles = self.tilts_meter.get_yaw_pitch_roll_angles()
-        regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX), self.cycle_time)
+        #regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX), self.cycle_time)
         regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX), self.cycle_time)
-        regulated_yaw = self.yaw_regulator.regulate(angles.yaw, self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX), self.cycle_time)
-        regulated_roll = self.degree_to_pulse(regulated_roll)
-        regulated_pitch = self.degree_to_pulse(regulated_pitch)
-        regulated_yaw = self.degree_to_pulse(regulated_yaw)
+        #regulated_yaw = self.yaw_regulator.regulate(angles.yaw, self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX), self.cycle_time)
+        #regulated_roll = self.degree_to_pulse(regulated_roll)
+        #regulated_pitch = self.degree_to_pulse(regulated_pitch)
+        #regulated_yaw = self.degree_to_pulse(regulated_yaw)
+        regulated_roll = 0
 
-        gas_forward_left = transmitter.gas_pw + regulated_roll - regulated_pitch  # - regulated_yaw
-        gas_forward_right = transmitter.gas_pw - regulated_roll - regulated_pitch  # + regulated_yaw
-        gas_backward_left = transmitter.gas_pw + regulated_roll + regulated_pitch  # + regulated_yaw
-        gas_backward_right = transmitter.gas_pw - regulated_roll + regulated_pitch  # - regulated_yaw
+        gas_forward_left = transmitter.gas_pw - regulated_roll + regulated_pitch  # - regulated_yaw
+        gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch  # + regulated_yaw
+        gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch  # + regulated_yaw
+        gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch  # - regulated_yaw
         if transmitter.gas_pw > self.move_min_gas:
             self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         else:
@@ -79,7 +80,8 @@ class SkySvetylicRC:
     @staticmethod
     def pulse_to_degree(pulse_value, min_pw, max_pw):
         average_pw = (max_pw + min_pw) / 2
-        return (pulse_value - average_pw) / 3
+        pw_ = (pulse_value - average_pw) / 11.1
+        return int(round(pw_))
 
     @staticmethod
     def degree_to_pulse(degree_value):

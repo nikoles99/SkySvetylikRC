@@ -300,7 +300,7 @@ class TiltsMeter:
 
     def get_yaw_pitch_roll_angles(self):
         current_time = time.process_time()
-        gyro_gain = 1 / self.selected_gyro_param * self.previous_time
+        gyro_gain = 9 / self.selected_gyro_param * self.previous_time
         gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * gyro_gain
         gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * gyro_gain
         gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * gyro_gain
@@ -325,6 +325,6 @@ class TiltsMeter:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        #print("{}, {}, {}", self.angle_roll, self.angle_pitch, -self.angle_yaw*10)
+        #print(self.angle_roll, self.angle_pitch, -self.angle_yaw*10)
         self.previous_time = time.process_time() - current_time
-        return GyroAccelModel(self.angle_roll, self.angle_pitch, -self.angle_yaw)
+        return GyroAccelModel(int(round(self.angle_roll)), int(round(self.angle_pitch)), -self.angle_yaw)
