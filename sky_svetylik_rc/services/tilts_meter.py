@@ -67,23 +67,22 @@ class TiltsMeter:
     gyro_z_error = 0
     accel_x_error = 0
     accel_y_error = 0
-    accel_z_error = 0
 
     angle_roll = 0
     angle_pitch = 0
     angle_yaw = 0
     first_reading = True
-    previous_time = 1
+    previous_time = 0
 
     def __init__(self, address=0x68):
         self.address = address
 
         # Wake up the MPU-6050 since it starts in sleep mode
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)
-        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_2G
-        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_250DEG
-        self.set_accel_range(self.ACCEL_RANGE_2G)
-        self.set_gyro_range(self.GYRO_RANGE_250DEG)
+        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_8G
+        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_500DEG
+        self.set_accel_range(self.ACCEL_RANGE_8G)
+        self.set_gyro_range(self.GYRO_RANGE_500DEG)
         self.calibrate()
 
     # I2C communication methods
@@ -161,7 +160,7 @@ class TiltsMeter:
             else:
                 return -1
 
-    def get_accel_data(self, g=True):
+    def get_accel_data(self, g=False):
         """Gets and returns the X, Y and Z values from the accelerometer.
         If g is True, it will return the data in g
         If g is False, it will return the data in m/s^2
@@ -173,7 +172,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.ACCEL_ZOUT0)
 
         accel_scale_modifier = None
-        accel_range = self.ACCEL_RANGE_2G
+        accel_range = self.ACCEL_RANGE_8G
 
         if accel_range == self.ACCEL_RANGE_2G:
             accel_scale_modifier = self.ACCEL_SCALE_MODIFIER_2G
@@ -244,7 +243,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.GYRO_ZOUT0)
 
         gyro_scale_modifier = None
-        gyro_range = self.GYRO_RANGE_250DEG
+        gyro_range = self.GYRO_RANGE_500DEG
 
         if gyro_range == self.GYRO_RANGE_250DEG:
             gyro_scale_modifier = self.GYRO_SCALE_MODIFIER_250DEG
@@ -267,7 +266,6 @@ class TiltsMeter:
     def calibrate(self):
         accel_x_sum = 0
         accel_y_sum = 0
-        accel_z_sum = 0
         gyro_x_sum = 0
         gyro_y_sum = 0
         gyro_z_sum = 0
@@ -275,9 +273,10 @@ class TiltsMeter:
 
         for i in range(CALIBRATION_RANGE):
             accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
-            accel_x_sum = accel_x_sum + accel_x_out
-            accel_y_sum = accel_y_sum + accel_y_out
-            accel_z_sum = accel_z_sum + accel_z_out
+            accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out)
+            accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out)
+            accel_x_sum = accel_x_sum + accel_x
+            accel_y_sum = accel_y_sum + accel_y
             gyro_x_out, gyro_y_out, gyro_z_out = self.get_gyro_data()
             gyro_x_sum = gyro_x_sum + gyro_x_out
             gyro_y_sum = gyro_y_sum + gyro_y_out
@@ -285,7 +284,6 @@ class TiltsMeter:
 
         self.accel_x_error = accel_x_sum / CALIBRATION_RANGE
         self.accel_y_error = accel_y_sum / CALIBRATION_RANGE
-        self.accel_z_error = accel_z_sum / CALIBRATION_RANGE
         self.gyro_x_error = gyro_x_sum / CALIBRATION_RANGE
         self.gyro_y_error = gyro_y_sum / CALIBRATION_RANGE
         self.gyro_z_error = gyro_z_sum / CALIBRATION_RANGE
@@ -319,11 +317,8 @@ class TiltsMeter:
         self.angle_pitch -= self.angle_roll * sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
-        accel_x_out -= self.accel_x_error
-        accel_y_out -= self.accel_y_error
-        accel_z_out -= self.accel_z_error
-        accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out)
-        accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out)
+        accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
+        accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
 
         if not self.first_reading:
             self.angle_roll = self.angle_roll * 0.99 + accel_x * 0.01
