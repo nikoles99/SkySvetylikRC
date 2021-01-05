@@ -160,7 +160,7 @@ class TiltsMeter:
             else:
                 return -1
 
-    def get_accel_data(self, g=False):
+    def get_accel_data(self, g=True):
         """Gets and returns the X, Y and Z values from the accelerometer.
         If g is True, it will return the data in g
         If g is False, it will return the data in m/s^2
@@ -172,7 +172,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.ACCEL_ZOUT0)
 
         accel_scale_modifier = None
-        accel_range = self.read_accel_range(True)
+        accel_range = self.ACCEL_RANGE_2G
 
         if accel_range == self.ACCEL_RANGE_2G:
             accel_scale_modifier = self.ACCEL_SCALE_MODIFIER_2G
@@ -243,7 +243,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.GYRO_ZOUT0)
 
         gyro_scale_modifier = None
-        gyro_range = self.read_gyro_range(True)
+        gyro_range = self.GYRO_RANGE_250DEG
 
         if gyro_range == self.GYRO_RANGE_250DEG:
             gyro_scale_modifier = self.GYRO_SCALE_MODIFIER_250DEG
@@ -261,7 +261,7 @@ class TiltsMeter:
         y = y / gyro_scale_modifier
         z = z / gyro_scale_modifier
 
-        return {'x': x, 'y': y, 'z': z}
+        return x, y, z
 
     def calibrate(self):
         accel_x_sum = 0
@@ -269,17 +269,18 @@ class TiltsMeter:
         gyro_x_sum = 0
         gyro_y_sum = 0
         gyro_z_sum = 0
-        CALIBRATION_RANGE = 200
+        CALIBRATION_RANGE = 2000
 
         for i in range(CALIBRATION_RANGE):
-            accel_xout = self.read_i2c_word(self.ACCEL_XOUT0) / self.selected_accel_param
-            accel_yout = self.read_i2c_word(self.ACCEL_YOUT0) / self.selected_accel_param
-            accel_zout = self.read_i2c_word(self.ACCEL_ZOUT0) / self.selected_accel_param
-            accel_x_sum = accel_x_sum + self.get_x_rotation(accel_xout, accel_yout, accel_zout)
-            accel_y_sum = accel_y_sum + self.get_y_rotation(accel_xout, accel_yout, accel_zout)
-            gyro_x_sum = gyro_x_sum + self.read_i2c_word(self.GYRO_XOUT0)
-            gyro_y_sum = gyro_y_sum + self.read_i2c_word(self.GYRO_YOUT0)
-            gyro_z_sum = gyro_z_sum + self.read_i2c_word(self.GYRO_ZOUT0)
+            accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
+            accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out)
+            accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out)
+            accel_x_sum = accel_x_sum + accel_x
+            accel_y_sum = accel_y_sum + accel_y
+            gyro_x_out, gyro_y_out, gyro_z_out = self.get_gyro_data()
+            gyro_x_sum = gyro_x_sum + gyro_x_out
+            gyro_y_sum = gyro_y_sum + gyro_y_out
+            gyro_z_sum = gyro_z_sum + gyro_z_out
 
         self.accel_x_error = accel_x_sum / CALIBRATION_RANGE
         self.accel_y_error = accel_y_sum / CALIBRATION_RANGE
@@ -298,29 +299,30 @@ class TiltsMeter:
     def dist(self, a, b):
         return math.sqrt((a * a) + (b * b))
 
+    def reset(self):
+        #self.angle_roll = 0
+        #self.angle_pitch = 0
+        self.angle_yaw = 0
+
     def get_yaw_pitch_roll_angles(self):
         current_time = time.process_time()
-        gyro_gain = 9 / self.selected_gyro_param * self.previous_time
-        gyro_x_out = (self.read_i2c_word(self.GYRO_XOUT0) - self.gyro_x_error) * gyro_gain
-        gyro_y_out = (self.read_i2c_word(self.GYRO_YOUT0) - self.gyro_y_error) * gyro_gain
-        gyro_z_out = (self.read_i2c_word(self.GYRO_ZOUT0) - self.gyro_z_error) * gyro_gain
+        gyro_gain = 10 * self.previous_time
+        gyro_x_out, gyro_y_out, gyro_z_out = self.get_gyro_data()
+        self.angle_roll = self.angle_roll + (gyro_x_out - self.gyro_x_error) * gyro_gain
+        self.angle_pitch = self.angle_pitch + (gyro_y_out - self.gyro_y_error) * gyro_gain
+        self.angle_yaw = (gyro_z_out - self.gyro_z_error) * gyro_gain
 
-        self.angle_roll = self.angle_roll + gyro_x_out
-        self.angle_pitch = self.angle_pitch + gyro_y_out
-        self.angle_yaw = self.angle_yaw + gyro_z_out
-
-        gyro_gain_radians = gyro_gain * 3.142 / 180
-        sin = math.sin(gyro_z_out * gyro_gain_radians)
-        self.angle_roll -= self.angle_pitch * sin
-        self.angle_pitch += self.angle_roll * sin
+        sin = math.sin(self.angle_yaw * 3.142 / 180)
+        self.angle_roll += self.angle_pitch * sin
+        self.angle_pitch -= self.angle_roll * sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
         accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
         accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
 
         if not self.first_reading:
-            self.angle_roll = self.angle_roll * 0.96 + accel_x * 0.04
-            self.angle_pitch = self.angle_pitch * 0.96 + accel_y * 0.04
+            self.angle_roll = self.angle_roll * 0.99 + accel_x * 0.01
+            self.angle_pitch = self.angle_pitch * 0.99 + accel_y * 0.01
         else:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y

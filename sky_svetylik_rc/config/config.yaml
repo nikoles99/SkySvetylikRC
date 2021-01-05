@@ -16,6 +16,8 @@ pinIn.reciever.leftVercical: 10
 pinIn.reciever.leftHorizontal: 9
 pinIn.reciever.rightVertical: 5
 pinIn.reciever.rightHorizontal: 6
+pinIn.reciever.switcherLeft: 0
+pinIn.reciever.switcherRight: 0
 
 #Sticks calibration ms
 calibration.leftHorizontal.max: 2001.0
@@ -28,12 +30,12 @@ calibration.rightVertical.max: 2001.0
 calibration.rightVertical.min: 999.0
 
 #PID params
-roll.P: 1.8
-roll.I: 0.0015
-roll.D: 9
-pitch.P: 1.8
-pitch.I: 0.0015
-pitch.D: 18
+roll.P: 0.95
+roll.I: 0.035
+roll.D: 7.5
+pitch.P: 0.95
+pitch.I: 0.031
+pitch.D: 9.5
 yaw.P: 0.5
 yaw.I: 0.01
 yaw.D: 0.5

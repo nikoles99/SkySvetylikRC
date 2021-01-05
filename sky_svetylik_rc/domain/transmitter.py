@@ -9,6 +9,8 @@ class Transmitter:
         self.yaw_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.leftHorizontal'))
         self.pitch_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.rightVertical'))
         self.roll_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.rightHorizontal'))
+        # self.switcher_left_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.switcherLeft'))
+        # self.switcher_right_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.switcherRight'))
         # frequency = self.receiver_left_vertical.frequency()
         # duty_cycle = self.receiver_left_vertical.duty_cycle()
         pass
@@ -29,6 +31,14 @@ class Transmitter:
     def roll_pw(self):
         return self.__roll_pw.pulse_width()
 
+    @property
+    def switcher_left_pw(self):
+        return self.__switcher_left_pw.pulse_width()
+
+    @property
+    def switcher_right_pw(self):
+        return self.__switcher_right_pw.pulse_width()
+
     @yaw_pw.setter
     def yaw_pw(self, value):
         self.__yaw_pw = value
@@ -44,3 +54,11 @@ class Transmitter:
     @roll_pw.setter
     def roll_pw(self, value):
         self.__roll_pw = value
+
+    @switcher_left_pw.setter
+    def switcher_left_pw(self, value):
+        self.__switcher_left_pw = value
+
+    @switcher_right_pw.setter
+    def switcher_right_pw(self, value):
+        self.__switcher_right_pw = value
