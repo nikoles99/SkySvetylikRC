@@ -67,6 +67,7 @@ class TiltsMeter:
     gyro_z_error = 0
     accel_x_error = 0
     accel_y_error = 0
+    accel_z_error = 0
 
     angle_roll = 0
     angle_pitch = 0
@@ -266,6 +267,7 @@ class TiltsMeter:
     def calibrate(self):
         accel_x_sum = 0
         accel_y_sum = 0
+        accel_z_sum = 0
         gyro_x_sum = 0
         gyro_y_sum = 0
         gyro_z_sum = 0
@@ -273,10 +275,9 @@ class TiltsMeter:
 
         for i in range(CALIBRATION_RANGE):
             accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
-            accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out)
-            accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out)
-            accel_x_sum = accel_x_sum + accel_x
-            accel_y_sum = accel_y_sum + accel_y
+            accel_x_sum = accel_x_sum + accel_x_out
+            accel_y_sum = accel_y_sum + accel_y_out
+            accel_z_sum = accel_z_sum + accel_z_out
             gyro_x_out, gyro_y_out, gyro_z_out = self.get_gyro_data()
             gyro_x_sum = gyro_x_sum + gyro_x_out
             gyro_y_sum = gyro_y_sum + gyro_y_out
@@ -284,6 +285,7 @@ class TiltsMeter:
 
         self.accel_x_error = accel_x_sum / CALIBRATION_RANGE
         self.accel_y_error = accel_y_sum / CALIBRATION_RANGE
+        self.accel_z_error = accel_z_sum / CALIBRATION_RANGE
         self.gyro_x_error = gyro_x_sum / CALIBRATION_RANGE
         self.gyro_y_error = gyro_y_sum / CALIBRATION_RANGE
         self.gyro_z_error = gyro_z_sum / CALIBRATION_RANGE
@@ -317,8 +319,11 @@ class TiltsMeter:
         self.angle_pitch -= self.angle_roll * sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
-        accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
-        accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
+        accel_x_out -= self.accel_x_error
+        accel_y_out -= self.accel_y_error
+        accel_z_out -= self.accel_z_error
+        accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out)
+        accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out)
 
         if not self.first_reading:
             self.angle_roll = self.angle_roll * 0.99 + accel_x * 0.01
