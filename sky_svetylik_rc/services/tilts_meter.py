@@ -6,6 +6,9 @@ import smbus
 from domain.gyro_accel_model import GyroAccelModel
 
 
+# sudo i2cdetect -y 1
+
+
 class TiltsMeter:
     # Global Variables
     GRAVITIY_MS2 = 9.80665
@@ -80,9 +83,9 @@ class TiltsMeter:
         # Wake up the MPU-6050 since it starts in sleep mode
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)
         self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_8G
-        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_500DEG
+        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_250DEG
         self.set_accel_range(self.ACCEL_RANGE_8G)
-        self.set_gyro_range(self.GYRO_RANGE_500DEG)
+        self.set_gyro_range(self.GYRO_RANGE_250DEG)
         self.calibrate()
 
     # I2C communication methods
@@ -243,7 +246,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.GYRO_ZOUT0)
 
         gyro_scale_modifier = None
-        gyro_range = self.GYRO_RANGE_500DEG
+        gyro_range = self.GYRO_RANGE_250DEG
 
         if gyro_range == self.GYRO_RANGE_250DEG:
             gyro_scale_modifier = self.GYRO_SCALE_MODIFIER_250DEG
@@ -304,29 +307,30 @@ class TiltsMeter:
         #self.angle_pitch = 0
         self.angle_yaw = 0
 
-    def get_yaw_pitch_roll_angles(self):
-        current_time = time.process_time()
-        gyro_gain = 10 * self.previous_time
+    def get_yaw_pitch_roll_angles(self, cycle_time):
+        current_time = time.time()
+        t = cycle_time - self.previous_time
         gyro_x_out, gyro_y_out, gyro_z_out = self.get_gyro_data()
+        gyro_gain = self.previous_time + t
         self.angle_roll = self.angle_roll + (gyro_x_out - self.gyro_x_error) * gyro_gain
         self.angle_pitch = self.angle_pitch + (gyro_y_out - self.gyro_y_error) * gyro_gain
         self.angle_yaw = (gyro_z_out - self.gyro_z_error) * gyro_gain
 
-        sin = math.sin(self.angle_yaw * 3.142 / 180)
-        self.angle_roll += self.angle_pitch * sin
-        self.angle_pitch -= self.angle_roll * sin
+        sin = math.sin(- self.angle_yaw * 3.142 / 180)
+        self.angle_roll -= self.angle_pitch * sin
+        self.angle_pitch += self.angle_roll * sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
         accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
         accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
 
         if not self.first_reading:
-            self.angle_roll = self.angle_roll * 0.99 + accel_x * 0.01
-            self.angle_pitch = self.angle_pitch * 0.99 + accel_y * 0.01
+            self.angle_roll = self.angle_roll * 0.992 + accel_x * 0.008
+            self.angle_pitch = self.angle_pitch * 0.992 + accel_y * 0.008
         else:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        #print(self.angle_roll, self.angle_pitch, -self.angle_yaw*10)
+        #print(self.angle_roll, self.angle_pitch, -self.angle_yaw)
         self.previous_time = time.process_time() - current_time
-        return GyroAccelModel(int(round(self.angle_roll)), int(round(self.angle_pitch)), -self.angle_yaw)
+        return GyroAccelModel(int(round(self.angle_roll)), int(round(self.angle_pitch)), self.angle_yaw)
