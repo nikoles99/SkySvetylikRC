@@ -15,7 +15,7 @@ class SkySvetylicRC:
         self.ESC_FORWARD_RIGHT_GPIO = ConfigUtils.read_value('pinOut.esc.forwardRight')
         self.board = board
         self.tilts_meter = TiltsMeter()
-        self.cycle_time = 0.02
+        self.cycle_time = 0
 
         self.roll_P = ConfigUtils.read_value('roll.P')
         self.roll_I = ConfigUtils.read_value('roll.I')
@@ -33,7 +33,7 @@ class SkySvetylicRC:
         pass
 
     def update(self, transmitter):
-        time_time = time.time()
+        time_time = time.perf_counter()
         angles = self.tilts_meter.get_yaw_pitch_roll_angles(self.cycle_time)
         regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX), transmitter)
         regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX), transmitter)
@@ -55,7 +55,7 @@ class SkySvetylicRC:
             self.pitch_regulator.reset()
             self.tilts_meter.reset()
             self.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
-        self.cycle_time = time.time() - time_time
+        self.cycle_time = time.perf_counter() - time_time
         # print("{}, {}, {}, {}, {}", self.cycle_time, angles.roll, angles.pitch, regulated_roll, angles.yaw  )
         pass
 
