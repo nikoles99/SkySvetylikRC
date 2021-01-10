@@ -5,8 +5,8 @@ pinOut.gyroscope: 3
 #ESC controllers GPIO
 pinOut.esc.forwardLeft: 14
 pinOut.esc.forwardRight: 15
-pinOut.esc.backwardLeft: 17
-pinOut.esc.backwardRight: 4
+pinOut.esc.backwardLeft: 4
+pinOut.esc.backwardRight: 17
 
 #Beeper GPIO
 pinOut.beeper: 21

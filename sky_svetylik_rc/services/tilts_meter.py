@@ -1,5 +1,4 @@
 import math
-import time
 
 import smbus
 
@@ -82,9 +81,9 @@ class TiltsMeter:
 
         # Wake up the MPU-6050 since it starts in sleep mode
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)
-        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_8G
+        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_2G
         self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_250DEG
-        self.set_accel_range(self.ACCEL_RANGE_8G)
+        self.set_accel_range(self.ACCEL_RANGE_2G)
         self.set_gyro_range(self.GYRO_RANGE_250DEG)
         self.calibrate()
 
@@ -175,7 +174,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.ACCEL_ZOUT0)
 
         accel_scale_modifier = None
-        accel_range = self.ACCEL_RANGE_8G
+        accel_range = self.ACCEL_RANGE_2G
 
         if accel_range == self.ACCEL_RANGE_2G:
             accel_scale_modifier = self.ACCEL_SCALE_MODIFIER_2G
@@ -303,8 +302,8 @@ class TiltsMeter:
         return math.sqrt((a * a) + (b * b))
 
     def reset(self):
-        #self.angle_roll = 0
-        #self.angle_pitch = 0
+        # self.angle_roll = 0
+        # self.angle_pitch = 0
         self.angle_yaw = 0
 
     def get_yaw_pitch_roll_angles(self, cycle_time):
@@ -322,8 +321,8 @@ class TiltsMeter:
         accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
 
         if not self.first_reading:
-            self.angle_roll = self.angle_roll * 0.992 + accel_x * 0.008
-            self.angle_pitch = self.angle_pitch * 0.992 + accel_y * 0.008
+            self.angle_roll = self.angle_roll * 0.95 + accel_x * 0.05
+            self.angle_pitch = self.angle_pitch * 0.95 + accel_y * 0.05
         else:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
