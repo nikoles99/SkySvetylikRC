@@ -37,7 +37,7 @@ class SkySvetylicRC:
         angles = self.tilts_meter.get_yaw_pitch_roll_angles(self.cycle_time)
         regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX), transmitter)
         regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX), transmitter)
-        print(angles.roll, angles.pitch)
+        print(angles.roll, '	', angles.pitch)
         #regulated_yaw = self.yaw_regulator.regulate(angles.yaw, self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX), self.cycle_time)
         #regulated_roll = self.degree_to_pulse(regulated_roll)
         #regulated_pitch = self.degree_to_pulse(regulated_pitch)

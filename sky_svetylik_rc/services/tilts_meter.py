@@ -81,10 +81,10 @@ class TiltsMeter:
 
         # Wake up the MPU-6050 since it starts in sleep mode
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)
-        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_2G
-        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_250DEG
-        self.set_accel_range(self.ACCEL_RANGE_2G)
-        self.set_gyro_range(self.GYRO_RANGE_250DEG)
+        self.selected_accel_param = self.ACCEL_SCALE_MODIFIER_16G
+        self.selected_gyro_param = self.GYRO_SCALE_MODIFIER_500DEG
+        self.set_accel_range(self.ACCEL_RANGE_16G)
+        self.set_gyro_range(self.GYRO_RANGE_500DEG)
         self.calibrate()
 
     # I2C communication methods
@@ -174,7 +174,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.ACCEL_ZOUT0)
 
         accel_scale_modifier = None
-        accel_range = self.ACCEL_RANGE_2G
+        accel_range = self.ACCEL_RANGE_16G
 
         if accel_range == self.ACCEL_RANGE_2G:
             accel_scale_modifier = self.ACCEL_SCALE_MODIFIER_2G
@@ -245,7 +245,7 @@ class TiltsMeter:
         z = self.read_i2c_word(self.GYRO_ZOUT0)
 
         gyro_scale_modifier = None
-        gyro_range = self.GYRO_RANGE_250DEG
+        gyro_range = self.GYRO_RANGE_500DEG
 
         if gyro_range == self.GYRO_RANGE_250DEG:
             gyro_scale_modifier = self.GYRO_SCALE_MODIFIER_250DEG
@@ -312,17 +312,17 @@ class TiltsMeter:
         self.angle_pitch = self.angle_pitch + (gyro_y_out - self.gyro_y_error) * cycle_time
         self.angle_yaw = (gyro_z_out - self.gyro_z_error) * cycle_time
 
-        sin = math.sin(- self.angle_yaw * 3.142 / 180)
-        self.angle_roll -= self.angle_pitch * sin
-        self.angle_pitch += self.angle_roll * sin
+        angle_yaw_sin = math.sin(-self.angle_yaw * 3.142 / 180)
+       # self.angle_roll -= self.angle_pitch * angle_yaw_sin
+        #self.angle_pitch += self.angle_roll * angle_yaw_sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
         accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
         accel_y = self.get_y_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_y_error
 
         if not self.first_reading:
-            self.angle_roll = self.angle_roll * 0.95 + accel_x * 0.05
-            self.angle_pitch = self.angle_pitch * 0.95 + accel_y * 0.05
+            self.angle_roll = self.angle_roll * 0.97 + accel_x * 0.03
+            self.angle_pitch = self.angle_pitch * 0.97 + accel_y * 0.03
         else:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y

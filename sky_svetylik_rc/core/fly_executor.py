@@ -13,6 +13,7 @@ class FlyExecutor(Executor):
 
     def execute(self):
         try:
+            self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
             self.arm()
             while True:
                 if self.is_disarmed():
