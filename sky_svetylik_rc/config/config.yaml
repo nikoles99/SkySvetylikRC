@@ -33,7 +33,7 @@ calibration.rightVertical.min: 999.0
 roll.P: 1.35
 roll.I: 0.005
 roll.D: 5.5
-pitch.P: 1.35
+pitch.P: 1.45
 pitch.I: 0.005
 pitch.D: 5.5
 yaw.P: 0.5

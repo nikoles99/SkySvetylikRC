@@ -14,8 +14,6 @@ class PIDRegulator:
         # self.I_gain = (transmitter.switcher_right_pw-1000)/1000
         # self.D_gain = (transmitter.switcher_left_pw-1000)/50
         # print(self.I_gain, self.D_gain, gyro)
-        if abs(gyro) <= 1:
-            gyro = 0
         error_previous = self.error
         self.error = gyro - receiver
         self.P_output = self.P_gain * self.error

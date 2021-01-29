@@ -60,6 +60,8 @@ class SkySvetylicRC:
         pass
 
     def gas(self, forward_left, forward_right, backward_left, backward_right):
+        forward_left += 52
+        forward_right += 42
         if forward_left > GAS_MAX:
             forward_left = GAS_MAX
         if forward_left < GAS_MIN:
