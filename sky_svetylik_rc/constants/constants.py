@@ -8,4 +8,4 @@ PITCH_MIN = ConfigUtils.read_value('calibration.rightVertical.min')
 PITCH_MAX = ConfigUtils.read_value('calibration.rightVertical.max')
 ROLL_MIN = ConfigUtils.read_value('calibration.rightHorizontal.min')
 ROLL_MAX = ConfigUtils.read_value('calibration.rightHorizontal.max')
-ERROR_MS = 10
+OFFSET_PW = 10

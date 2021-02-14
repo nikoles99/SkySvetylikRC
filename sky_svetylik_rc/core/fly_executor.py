@@ -1,6 +1,6 @@
 import subprocess
 
-from constants.constants import GAS_MIN, YAW_MAX, ERROR_MS
+from constants.constants import GAS_MIN, YAW_MAX, OFFSET_PW
 from core.executor import Executor
 from exceptions.no_receiver_connection_exception import NoReceiverConnectionException
 from services.beeper import Beeper
@@ -10,19 +10,18 @@ class FlyExecutor(Executor):
 
     def __init__(self):
         super().__init__()
-        self.MIN_START_ROTATE_PW = 150
 
     def execute(self):
         try:
-            self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
+            self.drone.gas_off()
             self.arm()
             while True:
                 if self.is_stick_bottom_left():
-                    self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
+                    self.drone.gas_off()
                     self.arm()
                 self.drone.update(self.transmitter)
         except Exception as exception:
-            self.drone.gas(GAS_MIN, GAS_MIN, GAS_MIN, GAS_MIN)
+            self.drone.gas_off()
             Beeper().error()
             self.logger.error(exception)
 
@@ -37,7 +36,7 @@ class FlyExecutor(Executor):
                 break
 
     def is_stick_bottom_left(self):
-        return self.transmitter.gas_pw - GAS_MIN <= ERROR_MS and YAW_MAX - self.transmitter.yaw_pw <= ERROR_MS
+        return self.transmitter.gas_pw - GAS_MIN <= OFFSET_PW and YAW_MAX - self.transmitter.yaw_pw <= OFFSET_PW
 
     def turn_off(self):
         Beeper().turn_off()
