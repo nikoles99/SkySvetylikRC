@@ -301,20 +301,16 @@ class TiltsMeter:
     def dist(self, a, b):
         return math.sqrt((a * a) + (b * b))
 
-    def reset(self):
-        # self.angle_roll = 0
-        # self.angle_pitch = 0
-        self.angle_yaw = 0
-
     def get_yaw_pitch_roll_angles(self, cycle_time):
         gyro_x_out, gyro_y_out, gyro_z_out = self.get_gyro_data()
         self.angle_roll = self.angle_roll + (gyro_x_out - self.gyro_x_error) * cycle_time
         self.angle_pitch = self.angle_pitch + (gyro_y_out - self.gyro_y_error) * cycle_time
-        self.angle_yaw = (gyro_z_out - self.gyro_z_error) * cycle_time
+        angle_yaw_split_second = (gyro_z_out - self.gyro_z_error) * cycle_time
+        #self.angle_yaw = self.angle_yaw - angle_yaw_split_second
 
-        angle_yaw_sin = math.sin(-self.angle_yaw * 3.142 / 180)
-       # self.angle_roll -= self.angle_pitch * angle_yaw_sin
-        #self.angle_pitch += self.angle_roll * angle_yaw_sin
+        angle_yaw_sin = math.sin(angle_yaw_split_second * 3.142 / 180)
+        self.angle_roll += self.angle_pitch * angle_yaw_sin
+        self.angle_pitch -= self.angle_roll * angle_yaw_sin
 
         accel_x_out, accel_y_out, accel_z_out = self.get_accel_data()
         accel_x = self.get_x_rotation(accel_x_out, accel_y_out, accel_z_out) - self.accel_x_error
@@ -327,4 +323,4 @@ class TiltsMeter:
             self.angle_roll = accel_x
             self.angle_pitch = accel_y
             self.first_reading = False
-        return GyroAccelModel(self.angle_roll, self.angle_pitch, self.angle_yaw)
+        return GyroAccelModel(self.angle_roll, self.angle_pitch, angle_yaw_split_second)
