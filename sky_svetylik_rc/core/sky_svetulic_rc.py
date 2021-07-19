@@ -35,20 +35,19 @@ class SkySvetylicRC:
     def update(self, transmitter):
         time_time = time.perf_counter()
         angles = self.tilts_meter.get_yaw_pitch_roll_angles(self.cycle_time)
-        regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX), transmitter)
-        regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX), transmitter)
-        regulated_yaw = self.yaw_regulator.regulate(angles.yaw, self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX), self.cycle_time)
-        print(angles.roll, '	', angles.pitch, '   ', angles.yaw)
-        gas_forward_left = self.get_gas(transmitter.gas_pw) - regulated_roll + regulated_pitch + regulated_yaw
-        gas_forward_right = self.get_gas(transmitter.gas_pw) + regulated_roll + regulated_pitch - regulated_yaw
-        gas_backward_left = self.get_gas(transmitter.gas_pw) - regulated_roll - regulated_pitch - regulated_yaw
-        gas_backward_right = self.get_gas(transmitter.gas_pw) + regulated_roll - regulated_pitch + regulated_yaw
+        regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX))
+        regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX))
+        regulated_yaw = self.yaw_regulator.regulate(angles.yaw, self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX))
+        gas_forward_left = transmitter.gas_pw - regulated_roll + regulated_pitch + regulated_yaw
+        gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch - regulated_yaw
+        gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch - regulated_yaw
+        gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch + regulated_yaw
+        print(angles.roll, '	', angles.pitch)
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         self.cycle_time = time.perf_counter() - time_time
         pass
 
     def gas(self, forward_left, forward_right, backward_left, backward_right):
-        backward_right = backward_right + 90 if backward_right > GAS_MIN else GAS_MIN
         if forward_left > GAS_MAX:
             forward_left = GAS_MAX
         if forward_left < GAS_MIN:
@@ -87,7 +86,7 @@ class SkySvetylicRC:
     @staticmethod
     def pulse_to_degree(pulse_value, min_pw, max_pw):
         average_pw = (max_pw + min_pw) / 2
-        pw_ = (pulse_value - average_pw) / 11.1
+        pw_ = (pulse_value - average_pw) / 16.6
         return int(round(pw_))
 
     @staticmethod
