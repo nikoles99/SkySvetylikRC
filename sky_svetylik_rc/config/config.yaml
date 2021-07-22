@@ -30,12 +30,12 @@ calibration.rightVertical.max: 2001.0
 calibration.rightVertical.min: 999.0
 
 #PID params
-roll.P: 3.2
+roll.P: 3.1
 roll.I: 0.00001
-roll.D: 25
+roll.D: 24.5
 pitch.P: 3.2
 pitch.I: 0.00001
-pitch.D: 25
+pitch.D: 24.5
 yaw.P: 6
 yaw.I: 0.00001
 yaw.D: 0
