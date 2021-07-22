@@ -36,6 +36,6 @@ roll.D: 25
 pitch.P: 3.2
 pitch.I: 0.00001
 pitch.D: 25
-yaw.P: 0
-yaw.I: 0
+yaw.P: 6
+yaw.I: 0.00001
 yaw.D: 0

@@ -1,6 +1,6 @@
 import time
 
-from constants.constants import GAS_MAX, GAS_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN
+from constants.constants import GAS_MAX, GAS_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN, OFFSET_PW
 from pid.pid_regulator import PIDRegulator
 from services.tilts_meter import TiltsMeter
 from utils.config_utils import ConfigUtils
@@ -13,27 +13,33 @@ class SkySvetylicRC:
         self.ESC_BACKWARD_LEFT_GPIO = ConfigUtils.read_value('pinOut.esc.backwardLeft')
         self.ESC_BACKWARD_RIGHT_GPIO = ConfigUtils.read_value('pinOut.esc.backwardRight')
         self.ESC_FORWARD_RIGHT_GPIO = ConfigUtils.read_value('pinOut.esc.forwardRight')
-        self.board = board
-        self.tilts_meter = TiltsMeter()
-        self.cycle_time = 0
 
         self.roll_P = ConfigUtils.read_value('roll.P')
         self.roll_I = ConfigUtils.read_value('roll.I')
         self.roll_D = ConfigUtils.read_value('roll.D')
         self.roll_regulator = PIDRegulator(self.roll_P, self.roll_I, self.roll_D)
+
         self.pitch_P = ConfigUtils.read_value('pitch.P')
         self.pitch_I = ConfigUtils.read_value('pitch.I')
         self.pitch_D = ConfigUtils.read_value('pitch.D')
         self.pitch_regulator = PIDRegulator(self.pitch_P, self.pitch_I, self.pitch_D)
+
         self.yaw_P = ConfigUtils.read_value('yaw.P')
         self.yaw_I = ConfigUtils.read_value('yaw.I')
         self.yaw_D = ConfigUtils.read_value('yaw.D')
         self.yaw_regulator = PIDRegulator(self.yaw_P, self.yaw_I, self.yaw_D)
+
+        self.board = board
+        self.tilts_meter = TiltsMeter()
+        self.cycle_time = 0
         self.start_gas = GAS_MIN + 100
+        self.yaw_middle_pw = (YAW_MAX + YAW_MIN) / 2
         pass
 
     def update(self, transmitter):
         time_time = time.perf_counter()
+        if (abs(self.yaw_middle_pw - transmitter.yaw_pw) >= OFFSET_PW) or (transmitter.gas_pw - GAS_MIN <= OFFSET_PW):
+            self.tilts_meter.reset_yaw_angle()
         angles = self.tilts_meter.get_yaw_pitch_roll_angles(self.cycle_time)
         regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX))
         regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX))
@@ -42,7 +48,7 @@ class SkySvetylicRC:
         gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch - regulated_yaw
         gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch - regulated_yaw
         gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch + regulated_yaw
-        print(angles.roll, '	', angles.pitch)
+        #print(angles.roll, '	', angles.pitch)
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         self.cycle_time = time.perf_counter() - time_time
         pass
@@ -77,6 +83,7 @@ class SkySvetylicRC:
         self.roll_regulator.reset()
         self.pitch_regulator.reset()
         self.yaw_regulator.reset()
+        self.tilts_meter.reset_yaw_angle()
 
     def get_gas(self, gas):
         if gas < self.start_gas:
