@@ -1,5 +1,6 @@
 from utils.config_utils import ConfigUtils
 
+GAS_FLY_MIN = ConfigUtils.read_value('gas.fly_min')
 GAS_MIN = ConfigUtils.read_value('calibration.leftVertical.min')
 GAS_MAX = ConfigUtils.read_value('calibration.leftVertical.max')
 YAW_MIN = ConfigUtils.read_value('calibration.leftHorizontal.min')

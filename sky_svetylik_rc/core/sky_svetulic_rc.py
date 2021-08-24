@@ -1,6 +1,6 @@
 import time
 
-from constants.constants import GAS_MAX, GAS_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN, OFFSET_PW
+from constants.constants import GAS_MAX, GAS_MIN, GAS_FLY_MIN, YAW_MAX, YAW_MIN, PITCH_MAX, PITCH_MIN, ROLL_MAX, ROLL_MIN, OFFSET_PW
 from pid.pid_regulator import PIDRegulator
 from services.tilts_meter import TiltsMeter
 from utils.config_utils import ConfigUtils
@@ -48,7 +48,6 @@ class SkySvetylicRC:
         gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch - regulated_yaw
         gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch - regulated_yaw
         gas_backward_right = transmitter.gas_pw + regulated_roll - regulated_pitch + regulated_yaw
-        #print(angles.roll, '	', angles.pitch)
         self.gas(gas_forward_left, gas_forward_right, gas_backward_left, gas_backward_right)
         self.cycle_time = time.perf_counter() - time_time
         pass
@@ -56,20 +55,20 @@ class SkySvetylicRC:
     def gas(self, forward_left, forward_right, backward_left, backward_right):
         if forward_left > GAS_MAX:
             forward_left = GAS_MAX
-        if forward_left < GAS_MIN:
-            forward_left = GAS_MIN
+        if forward_left < GAS_FLY_MIN:
+            forward_left = GAS_FLY_MIN
         if forward_right > GAS_MAX:
             forward_right = GAS_MAX
-        if forward_right < GAS_MIN:
-            forward_right = GAS_MIN
+        if forward_right < GAS_FLY_MIN:
+            forward_right = GAS_FLY_MIN
         if backward_left > GAS_MAX:
             backward_left = GAS_MAX
-        if backward_left < GAS_MIN:
-            backward_left = GAS_MIN
+        if backward_left < GAS_FLY_MIN:
+            backward_left = GAS_FLY_MIN
         if backward_right > GAS_MAX:
             backward_right = GAS_MAX
-        if backward_right < GAS_MIN:
-            backward_right = GAS_MIN
+        if backward_right < GAS_FLY_MIN:
+            backward_right = GAS_FLY_MIN
         self.board.set_servo_pulsewidth(self.ESC_FORWARD_LEFT_GPIO, forward_left)
         self.board.set_servo_pulsewidth(self.ESC_FORWARD_RIGHT_GPIO, forward_right)
         self.board.set_servo_pulsewidth(self.ESC_BACKWARD_LEFT_GPIO, backward_left)
