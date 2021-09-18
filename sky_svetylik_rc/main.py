@@ -15,8 +15,10 @@ logging.basicConfig(filename='sky_svetylic_rc.log', filemode='w', format='[%(lev
                     level=logging.DEBUG, datefmt='%d-%b-%y %H:%M:%S')
 
 # Starting PWM pigpiod
-process = subprocess.Popen('sudo killall pigpiod;sudo pigpiod', stdout=subprocess.PIPE, shell=True)
+process = subprocess.Popen('sudo pkill pigpiod;sudo pigpiod',
+                           stdout=subprocess.PIPE, shell=True)
 output, error = process.communicate()
+Beeper().init()
 
 
 if error is None:

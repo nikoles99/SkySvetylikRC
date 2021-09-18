@@ -28,13 +28,13 @@ calibration.rightHorizontal.max: 2001.0
 calibration.rightHorizontal.min: 999.0
 calibration.rightVertical.max: 2001.0
 calibration.rightVertical.min: 999.0
-gas.fly_min: 1250.0
+gas.fly_min: 1350.0
 
 #PID params
-roll.P: 2.9
+roll.P: 3
 roll.I: 0.00001
 roll.D: 24
-pitch.P: 3.2
+pitch.P: 3.4
 pitch.I: 0.00001
 pitch.D: 24
 yaw.P: 8
