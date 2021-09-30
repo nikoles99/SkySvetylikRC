@@ -13,6 +13,7 @@ GPIO.setmode(GPIO.BCM)
 
 # Logger config
 os.makedirs('logs', exist_ok=True)
+os.makedirs('records', exist_ok=True)
 file_handler = logging.FileHandler('logs/sky_svetylic_rc-{0}.log'
                                    .format(datetime.today().strftime('%Y-%m-%d-%H:%M:%S')))
 formatter = logging.Formatter('[%(levelname)s]-%(asctime)s -- %(message)s')
