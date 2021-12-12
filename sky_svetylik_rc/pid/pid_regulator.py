@@ -1,6 +1,6 @@
 class PIDRegulator:
 
-    def __init__(self, P_gain, I_gain, D_gain):
+    def __init__(self, P_gain, I_gain, D_gain, threshold=200):
         self.P_gain = P_gain
         self.I_gain = I_gain
         self.D_gain = D_gain
@@ -8,7 +8,7 @@ class PIDRegulator:
         self.I_output = 0
         self.D_output = 0
         self.error = 0
-        self.OUTPUT_THRESHOLD = 200
+        self.OUTPUT_THRESHOLD = threshold
         pass
 
     def regulate(self, gyro, receiver):

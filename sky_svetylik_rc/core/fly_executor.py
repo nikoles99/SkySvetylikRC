@@ -55,10 +55,13 @@ class FlyExecutor(Executor):
         return signal != 0 and signal > UN_PLUGIN_PW
 
     def switch_camera_mode(self):
-        if self.isArmed:
-            self.camera.stop_recording()
-        else:
-            self.camera.start_recording()
+        try:
+            if self.isArmed:
+                self.camera.stop_recording()
+            else:
+                self.camera.start_recording()
+        except Exception as exception:
+            self.logger.error(exception)
 
     def turn_off(self):
         Beeper().turn_off()

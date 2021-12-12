@@ -1,13 +1,17 @@
 from picamera import PiCamera
 from datetime import datetime
 
+
 class Camera:
 
     def __init__(self):
-        self.camera = PiCamera()
+        pass
+
 
     def start_recording(self):
-        path = 'records/record-{0}.h264'.format(datetime.today().strftime('%Y-%m-%d-%H:%M:%S'))
+        self.camera = PiCamera()
+        self.camera.framerate = 90
+        path = 'records/record-{0}.mjpeg'.format(datetime.today().strftime('%Y-%m-%d-%H:%M:%S'))
         self.camera.start_preview()
         self.camera.start_recording(path)
 

@@ -42,7 +42,7 @@ class SkySvetylicRC:
         regulated_roll = self.roll_regulator.regulate(angles.roll, self.pulse_to_degree(transmitter.roll_pw, ROLL_MIN, ROLL_MAX))
         regulated_pitch = self.pitch_regulator.regulate(angles.pitch, self.pulse_to_degree(transmitter.pitch_pw, PITCH_MIN, PITCH_MAX))
         yaw_degree = self.pulse_to_degree(transmitter.yaw_pw, YAW_MIN, YAW_MAX)
-        regulated_yaw = self.regulate_yaw(angles, yaw_degree, transmitter)
+        regulated_yaw = self.regulate_yaw(angles.yaw, yaw_degree, transmitter)
         gas_forward_left = transmitter.gas_pw - regulated_roll + regulated_pitch + regulated_yaw
         gas_forward_right = transmitter.gas_pw + regulated_roll + regulated_pitch - regulated_yaw
         gas_backward_left = transmitter.gas_pw - regulated_roll - regulated_pitch - regulated_yaw
@@ -51,12 +51,12 @@ class SkySvetylicRC:
         self.cycle_time = time.perf_counter() - time_time
         pass
 
-    def regulate_yaw(self, angles, yaw_degree, transmitter):
-        if (abs(self.yaw_middle_pw - transmitter.yaw_pw) >= OFFSET_PW) or (transmitter.gas_pw - GAS_MIN <= OFFSET_PW):
+    def regulate_yaw(self, yaw, yaw_degree, transmitter):
+        if (abs(self.yaw_middle_pw - transmitter.yaw_pw) >= 20 * OFFSET_PW) or (transmitter.gas_pw - GAS_MIN <= OFFSET_PW):
             self.yaw_regulator.reset()
             self.tilts_meter.reset_yaw_angle()
-            return -self.yaw_P * yaw_degree
-        return self.yaw_regulator.regulate(angles.yaw, yaw_degree)
+            return -3 * yaw_degree
+        return self.yaw_regulator.regulate(yaw, yaw_degree)
 
     def gas(self, forward_left, forward_right, backward_left, backward_right):
         forward_left = self.restrict_input_pw(forward_left)

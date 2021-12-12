@@ -32,11 +32,11 @@ gas.fly_min: 1350.0
 
 #PID params
 roll.P: 3
-roll.I: 0.00001
+roll.I: 0.01
 roll.D: 24
 pitch.P: 3.4
-pitch.I: 0.00001
+pitch.I: 0.01
 pitch.D: 24
-yaw.P: 6
-yaw.I: 0.00001
-yaw.D: 0
+yaw.P: 25
+yaw.I: 0.01
+yaw.D: 30
