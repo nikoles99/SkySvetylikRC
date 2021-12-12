@@ -55,7 +55,7 @@ class SkySvetylicRC:
         if (abs(self.yaw_middle_pw - transmitter.yaw_pw) >= 20 * OFFSET_PW) or (transmitter.gas_pw - GAS_MIN <= OFFSET_PW):
             self.yaw_regulator.reset()
             self.tilts_meter.reset_yaw_angle()
-            return -3 * yaw_degree
+            return -4 * yaw_degree
         return self.yaw_regulator.regulate(yaw, yaw_degree)
 
     def gas(self, forward_left, forward_right, backward_left, backward_right):
