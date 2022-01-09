@@ -1,18 +1,25 @@
-from services.receiver_pwm_reader import ReceiverPMWReader
+from machine import Pin , PWM
 from utils.config_utils import ConfigUtils
 
 
 class Transmitter:
 
     def __init__(self, board):
-        self.gas_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.leftVercical'))
-        self.yaw_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.leftHorizontal'))
-        self.pitch_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.rightVertical'))
-        self.roll_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.rightHorizontal'))
-        # self.switcher_left_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.switcherLeft'))
-        # self.switcher_right_pw = ReceiverPMWReader(board, ConfigUtils.read_value('pinIn.reciever.switcherRight'))
-        # frequency = self.receiver_left_vertical.frequency()
-        # duty_cycle = self.receiver_left_vertical.duty_cycle()
+        self.gas_pw = PWM(Pin(ConfigUtils.read_value('pinIn.reciever.leftVercical')))
+        self.gas_pw(100000)  
+        self.gas_pw(32768)
+        
+        self.yaw_pw = PWM(Pin(ConfigUtils.read_value('pinIn.reciever.leftHorizontal')))
+        self.yaw_pw(100000)  
+        self.yaw_pw(32768)
+        
+        self.pitch_pw = PWM(Pin(ConfigUtils.read_value('pinIn.reciever.rightVertical')))
+        self.pitch_pw(100000)  
+        self.pitch_pw(32768)
+        
+        self.roll_pw = PWM(Pin(ConfigUtils.read_value('pinIn.reciever.rightHorizontal')))
+        self.roll_pw(100000)  
+        self.roll_pw(32768)
         pass
 
     @property

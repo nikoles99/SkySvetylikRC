@@ -2,14 +2,12 @@ from constants.constants import GAS_MIN, YAW_MAX, OFFSET_PW, UN_PLUGIN_PW
 from core.executor import Executor
 from exceptions.no_receiver_connection_exception import NoReceiverConnectionException
 from services.beeper import Beeper
-from utils.camera import Camera
 
 
 class FlyExecutor(Executor):
 
     def __init__(self):
         super().__init__()
-        self.camera = Camera()
         self.isArmed = True
 
     def execute(self):
@@ -39,7 +37,6 @@ class FlyExecutor(Executor):
             if self.is_stick_bottom_left():
                 Beeper().start()
                 self.isArmed = not self.isArmed
-                self.switch_camera_mode()
                 break
 
     def is_stick_bottom_left(self):
@@ -52,14 +49,6 @@ class FlyExecutor(Executor):
     def is_signal_available(self, signal):
         return signal != 0 and signal > UN_PLUGIN_PW
 
-    def switch_camera_mode(self):
-        try:
-            if self.isArmed:
-                self.camera.stop_recording()
-            else:
-                self.camera.start_recording()
-        except Exception as exception:
-            self.logger.error(exception)
 
     def turn_off(self):
         Beeper().turn_off()

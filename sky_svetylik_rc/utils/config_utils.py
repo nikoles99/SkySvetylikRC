@@ -8,7 +8,6 @@ class ConfigUtils:
     def read_value(request_key):
         with open(ConfigUtils.CONFIG_PATH) as fp:
             config = ujson.loads(fp.read())
-            print(config[request_key])
             return config[request_key]
 
     @staticmethod

@@ -5,12 +5,10 @@ from domain.transmitter import Transmitter
 class Executor:
 
     def __init__(self):
-        self.board = pigpio.pi()
-        self.drone = SkySvetylicRC(self.board)
-        self.transmitter = Transmitter(self.board)
-        self.logger = logging.getLogger('Executor')
+        self.drone = SkySvetylicRC()
+        self.transmitter = Transmitter()
         pass
 
-    @abc.abstractmethod
+
     def execute(self):
         pass

@@ -8,7 +8,7 @@ from utils.config_utils import ConfigUtils
 
 class SkySvetylicRC:
 
-    def __init__(self, board):
+    def __init__(self):
         self.ESC_FORWARD_LEFT_GPIO = ConfigUtils.read_value('pinOut.esc.forwardLeft')
         self.ESC_BACKWARD_LEFT_GPIO = ConfigUtils.read_value('pinOut.esc.backwardLeft')
         self.ESC_BACKWARD_RIGHT_GPIO = ConfigUtils.read_value('pinOut.esc.backwardRight')
@@ -29,7 +29,7 @@ class SkySvetylicRC:
         self.yaw_D = ConfigUtils.read_value('yaw.D')
         self.yaw_regulator = PIDRegulator(self.yaw_P, self.yaw_I, self.yaw_D)
 
-        self.board = board
+        self.board = null
         self.tilts_meter = TiltsMeter()
         self.cycle_time = 0
         self.start_gas = GAS_MIN + 100

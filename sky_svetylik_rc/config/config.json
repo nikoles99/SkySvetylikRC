@@ -1,0 +1,41 @@
+{
+"pinOut.accelerometr": 2,
+"pinOut.gyroscope": 3,
+
+
+"pinOut.esc.forwardLeft": 14,
+"pinOut.esc.forwardRight": 15,
+"pinOut.esc.backwardLeft": 4,
+"pinOut.esc.backwardRight": 17,
+
+
+"pinOut.beeper": 21,
+
+
+"pinIn.reciever.leftVercical": 10,
+"pinIn.reciever.leftHorizontal": 9,
+"pinIn.reciever.rightVertical": 5,
+"pinIn.reciever.rightHorizontal": 6,
+"pinIn.reciever.switcherLeft": 0,
+"pinIn.reciever.switcherRight": 0,
+
+"calibration.leftHorizontal.max": 2001.0,
+"calibration.leftHorizontal.min": 999.0,
+"calibration.leftVertical.max": 2000.0,
+"calibration.leftVertical.min": 999.0,
+"calibration.rightHorizontal.max": 2001.0,
+"calibration.rightHorizontal.min": 999.0,
+"calibration.rightVertical.max": 2001.0,
+"calibration.rightVertical.min": 999.0,
+"gas.fly_min": 1350,
+
+"roll.P": 3,
+"roll.I": 0.005,
+"roll.D": 24,
+"pitch.P": 3.4,
+"pitch.I": 0.005,
+"pitch.D": 24,
+"yaw.P": 40,
+"yaw.I": 0.01,
+"yaw.D": 120,
+}
