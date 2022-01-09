@@ -1,5 +1,3 @@
-import subprocess
-
 from constants.constants import GAS_MIN, YAW_MAX, OFFSET_PW, UN_PLUGIN_PW
 from core.executor import Executor
 from exceptions.no_receiver_connection_exception import NoReceiverConnectionException
@@ -65,4 +63,3 @@ class FlyExecutor(Executor):
 
     def turn_off(self):
         Beeper().turn_off()
-        subprocess.Popen('sudo shutdown now', stdout=subprocess.PIPE, shell=True).communicate()

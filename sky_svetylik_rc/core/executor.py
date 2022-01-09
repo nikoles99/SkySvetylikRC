@@ -1,8 +1,3 @@
-import abc
-import logging
-
-import pigpio
-
 from core.sky_svetulic_rc import SkySvetylicRC
 from domain.transmitter import Transmitter
 
