@@ -24,8 +24,8 @@ add_executable(pico_drone pico_drone.c )
 pico_set_program_name(pico_drone "pico_drone")
 pico_set_program_version(pico_drone "0.1")
 
-pico_enable_stdio_uart(pico_drone 1)
-pico_enable_stdio_usb(pico_drone 0)
+pico_enable_stdio_usb(pico_drone 1)
+pico_enable_stdio_uart(pico_drone 0)
 
 # Add the standard library to the build
 target_link_libraries(pico_drone pico_stdlib)
